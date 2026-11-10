@@ -1,0 +1,4350 @@
+{
+ "format": "robot-motions",
+ "version": 5,
+ "units": "logical-ics",
+ "fps": 40,
+ "motions": [
+  {
+   "Name": "dai_kougeki_1",
+   "Desc": "大攻撃(右)",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       6167
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 475
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       6118,
+       9016,
+       8083,
+       7336
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       6344,
+       5974,
+       7678,
+       7336
+      ]
+     },
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       6344,
+       7722,
+       7678,
+       3989
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [],
+    "r_leg": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7500,
+       9767,
+       7115,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 900
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7500,
+       9337,
+       8093,
+       8129
+      ]
+     },
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       6878,
+       7411,
+       7219,
+       5648,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 500
+     },
+     {
+      "DurationMs": 400,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7411,
+       7219,
+       5648,
+       6841
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7411,
+       6300,
+       5885,
+       6841
+      ]
+     },
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "dai_kougeki_2",
+   "Desc": "大攻撃(左)",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       8981
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 475
+     },
+     {
+      "DurationMs": 300,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [],
+    "l_arm": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7663,
+       8922,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7648,
+       7026,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7663,
+       8922,
+       6196,
+       4285
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       7944,
+       9130,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 675
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8196,
+       9115,
+       9085,
+       8129
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6878,
+       5619,
+       7396,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 675
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6878,
+       5589,
+       6004,
+       6841
+      ]
+     },
+     {
+      "DurationMs": 275,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "Owaza_tukami",
+   "Desc": "大技_掴み",
+   "Tracks": {
+    "hip": [
+     {
+      "Gap": true,
+      "DurationMs": 700
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       8484,
+       9712,
+       5507,
+       7201
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7322,
+       9693,
+       5619,
+       7201
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7322,
+       9693,
+       5159,
+       7201
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       6579,
+       9673,
+       9231,
+       7281
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7752,
+       9673,
+       9426,
+       7281
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7752,
+       9673,
+       9841,
+       7281
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 700
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8167,
+       9619,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 700
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5174,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "Owaza_nage",
+   "Desc": "大技_投げ",
+   "Tracks": {
+    "hip": [
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 2550,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7322,
+       9693,
+       5159,
+       7201
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7322,
+       9811,
+       3500,
+       7201
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7752,
+       9673,
+       9841,
+       7281
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7752,
+       10226,
+       11500,
+       7281
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8167,
+       9619,
+       8643,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7411,
+       7396,
+       10226,
+       6878,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5174,
+       6277,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7456,
+       5174,
+       8670,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "syo_kougeki_1",
+   "Desc": "小攻撃(左)",
+   "Tracks": {
+    "hip": [
+     {
+      "Gap": true,
+      "DurationMs": 175
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       8981
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 225,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       7500,
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 100
+     },
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6907,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       7500,
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 100
+     },
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6907,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [],
+    "l_leg": []
+   }
+  },
+  {
+   "Name": "syo_kougeki_2",
+   "Desc": "小攻撃(右)",
+   "Tracks": {
+    "hip": [
+     {
+      "Gap": true,
+      "DurationMs": 175
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       6019
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 225,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       7500,
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 100
+     },
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6907,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       7500,
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 100
+     },
+     {
+      "DurationMs": 250,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6907,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [],
+    "l_leg": []
+   }
+  },
+  {
+   "Name": "Attack_right_motiage",
+   "Desc": "右：中央から40度の位置に持ち上げ攻撃",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       6019
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 675
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7559,
+       8819,
+       8137,
+       3544
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7379,
+       8903,
+       7496,
+       7491
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7379,
+       6608,
+       7496,
+       7491
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 175
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7559,
+       8819,
+       8137,
+       3544
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7070,
+       9159,
+       7085,
+       3500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 2175
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8362,
+       8525,
+       8561,
+       9352
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7986,
+       9367,
+       7628,
+       7986
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 675
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7986,
+       9367,
+       7628,
+       7959
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8362,
+       8525,
+       8561,
+       7989
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8362,
+       8525,
+       8561,
+       8362
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6282,
+       6241,
+       6819
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6651,
+       7418,
+       5601,
+       7219
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 675
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6651,
+       7418,
+       5601,
+       5781
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6282,
+       6241,
+       5663
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6282,
+       6241,
+       6567
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "Attack_right_lite",
+   "Desc": "右軽攻撃",
+   "Tracks": {
+    "hip": [],
+    "r_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7522,
+       8997,
+       5691,
+       6584
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 800,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [],
+    "r_leg": [],
+    "l_leg": []
+   }
+  },
+  {
+   "Name": "Attack_left_lite",
+   "Desc": "左軽攻撃",
+   "Tracks": {
+    "hip": [],
+    "r_arm": [],
+    "l_arm": [
+     {
+      "DurationMs": 50,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7652,
+       9276,
+       9386,
+       6620
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7652,
+       9275,
+       9377,
+       6611
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7650,
+       9271,
+       9352,
+       6587
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7648,
+       9265,
+       9310,
+       6547
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7645,
+       9257,
+       9254,
+       6492
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7642,
+       9247,
+       9185,
+       6425
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7638,
+       9235,
+       9103,
+       6346
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7633,
+       9222,
+       9009,
+       6256
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7628,
+       9207,
+       8906,
+       6156
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7623,
+       9191,
+       8794,
+       6047
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7617,
+       9173,
+       8674,
+       5931
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7610,
+       9155,
+       8547,
+       5808
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7604,
+       9136,
+       8414,
+       5680
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7597,
+       9116,
+       8277,
+       5547
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7590,
+       9096,
+       8137,
+       5411
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7583,
+       9075,
+       7994,
+       5273
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7576,
+       9055,
+       7851,
+       5134
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7569,
+       9034,
+       7707,
+       4995
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7562,
+       9013,
+       7564,
+       4857
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7555,
+       8993,
+       7424,
+       4721
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7548,
+       8973,
+       7287,
+       4588
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7542,
+       8954,
+       7154,
+       4460
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7535,
+       8936,
+       7027,
+       4337
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7529,
+       8918,
+       6907,
+       4221
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7524,
+       8902,
+       6795,
+       4112
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7519,
+       8887,
+       6692,
+       4012
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7514,
+       8874,
+       6598,
+       3922
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7510,
+       8862,
+       6516,
+       3843
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7507,
+       8852,
+       6447,
+       3776
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7504,
+       8844,
+       6391,
+       3721
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7502,
+       8838,
+       6349,
+       3681
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8834,
+       6324,
+       3657
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [],
+    "l_leg": []
+   }
+  },
+  {
+   "Name": "stand_to_sit",
+   "Desc": "立ち姿勢から座り姿勢に",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 325,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8396,
+       8797,
+       8474,
+       8396
+      ]
+     },
+     {
+      "DurationMs": 300,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       9113,
+       9761,
+       9139,
+       9113
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6101,
+       6439,
+       6567
+      ]
+     },
+     {
+      "DurationMs": 300,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5887,
+       5239,
+       5861,
+       5887
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "sit_to_stand",
+   "Desc": "しゃがみから立ち姿勢",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 525,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 525,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 525,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       9113,
+       9761,
+       9139,
+       9113
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8396,
+       8797,
+       8474,
+       8396
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5887,
+       5239,
+       5861,
+       5887
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6101,
+       6439,
+       6567
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "kougeki_1",
+   "Desc": "",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       0
+      ]
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       9055
+      ]
+     },
+     {
+      "DurationMs": 75,
+      "Mode": 0,
+      "Angles": [
+       6459
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 975
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       6167
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       8520,
+       8043,
+       8749,
+       3607
+      ]
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       8430,
+       8950,
+       5284,
+       7336
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 975
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       7479,
+       8500,
+       7659,
+       5783
+      ]
+     },
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       7432,
+       9880,
+       5082,
+       3637
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 975
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7923,
+       7749,
+       8812,
+       8124
+      ]
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       9130,
+       9715,
+       8335,
+       7752
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 800
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8009,
+       8918,
+       8893,
+       7904
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6764,
+       5263,
+       7106,
+       7109
+      ]
+     },
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       8389,
+       7091,
+       7971,
+       6591,
+       7591
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 875
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6794,
+       5598,
+       6208,
+       7012
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "Syokiichi",
+   "Desc": "初期位置",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       0
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8396,
+       8797,
+       8474,
+       8396
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6567,
+       6101,
+       6439,
+       6567
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "stand_Up_1",
+   "Desc": "表が上",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1200
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       0
+      ]
+     },
+     {
+      "DurationMs": 575,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 25
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 200,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7500,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       9951,
+       7500,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       9951,
+       8563,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7539,
+       8829,
+       8666,
+       3710
+      ]
+     },
+     {
+      "DurationMs": 625,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 200,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7500,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       4918,
+       7500,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       4918,
+       8816,
+       7500,
+       7500
+      ]
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7459,
+       8833,
+       6334,
+       3710
+      ]
+     },
+     {
+      "DurationMs": 600,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "DurationMs": 200,
+      "Mode": 0,
+      "Angles": [
+       8078,
+       7741,
+       9811,
+       9091,
+       7752
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1000
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8396,
+       8797,
+       8474,
+       8396
+      ]
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "DurationMs": 200,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5980,
+       4915,
+       5194,
+       6120
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1000
+     },
+     {
+      "DurationMs": 1000,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6565,
+       6105,
+       6447,
+       6566
+      ]
+     },
+     {
+      "DurationMs": 975,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "kougeki_3",
+   "Desc": "",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     },
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       10167
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 475
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7306,
+       8667,
+       7668,
+       7615
+      ]
+     },
+     {
+      "DurationMs": 75,
+      "Mode": 0,
+      "Angles": [
+       7270,
+       7533,
+       7380,
+       7596
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 350,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 175,
+      "Mode": 0,
+      "Angles": [
+       7345,
+       9142,
+       7420,
+       7350
+      ]
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       7228,
+       7466,
+       7910,
+       7369
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 300
+     },
+     {
+      "DurationMs": 350,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 1600,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 1600,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "kougeki_2",
+   "Desc": "",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     },
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       10167
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 475
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       9816,
+       8062,
+       7852,
+       4461
+      ]
+     },
+     {
+      "DurationMs": 75,
+      "Mode": 0,
+      "Angles": [
+       7270,
+       7533,
+       7380,
+       7596
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 350,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       5149,
+       8529,
+       7098,
+       4312
+      ]
+     },
+     {
+      "DurationMs": 100,
+      "Mode": 0,
+      "Angles": [
+       7228,
+       7466,
+       7910,
+       7369
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 300
+     },
+     {
+      "DurationMs": 350,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 1600,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 1600,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "kogetto1",
+   "Desc": "体重載せた攻撃",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 1575,
+      "Mode": 0,
+      "Angles": [
+       0
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 250
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       9544,
+       7544,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6789,
+       9470,
+       4833,
+       7426
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6794,
+       9465,
+       4861,
+       7399
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6809,
+       9452,
+       4941,
+       7320
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6832,
+       9431,
+       5067,
+       7196
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6863,
+       9404,
+       5234,
+       7033
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6900,
+       9370,
+       5435,
+       6836
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6943,
+       9332,
+       5665,
+       6610
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       6989,
+       9291,
+       5918,
+       6362
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7039,
+       9246,
+       6189,
+       6096
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7091,
+       9199,
+       6471,
+       5819
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7145,
+       9152,
+       6759,
+       5537
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7198,
+       9104,
+       7047,
+       5255
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7250,
+       9057,
+       7329,
+       4978
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7300,
+       9012,
+       7600,
+       4712
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7346,
+       8971,
+       7853,
+       4464
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7389,
+       8933,
+       8083,
+       4238
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7426,
+       8899,
+       8284,
+       4041
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7457,
+       8872,
+       8451,
+       3878
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7480,
+       8851,
+       8577,
+       3754
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7495,
+       8838,
+       8657,
+       3675
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 250
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7115,
+       9752,
+       7796,
+       3648
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7204,
+       9678,
+       9826,
+       7011
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7206,
+       9672,
+       9801,
+       6987
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7212,
+       9654,
+       9728,
+       6917
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7222,
+       9627,
+       9613,
+       6807
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7235,
+       9590,
+       9461,
+       6661
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7250,
+       9546,
+       9277,
+       6486
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7268,
+       9495,
+       9068,
+       6285
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7287,
+       9440,
+       8837,
+       6063
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7308,
+       9381,
+       8590,
+       5827
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7330,
+       9319,
+       8333,
+       5581
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7352,
+       9256,
+       8071,
+       5330
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7374,
+       9192,
+       7808,
+       5078
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7396,
+       9130,
+       7551,
+       4832
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7417,
+       9071,
+       7304,
+       4596
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7436,
+       9016,
+       7073,
+       4374
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7454,
+       8965,
+       6864,
+       4173
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7469,
+       8921,
+       6680,
+       3998
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7482,
+       8884,
+       6528,
+       3852
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7492,
+       8857,
+       6413,
+       3742
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7498,
+       8839,
+       6340,
+       3672
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7675,
+       9284,
+       8862,
+       7675
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 250
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7675,
+       9284,
+       8862,
+       7675
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7470,
+       7963,
+       7705,
+       7544
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7752,
+       9750,
+       9354,
+       7752
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7755,
+       9745,
+       9349,
+       7755
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7763,
+       9729,
+       9334,
+       7763
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7775,
+       9704,
+       9311,
+       7775
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7791,
+       9672,
+       9280,
+       7791
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7811,
+       9633,
+       9243,
+       7811
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7833,
+       9588,
+       9200,
+       7833
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7858,
+       9538,
+       9154,
+       7858
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7885,
+       9486,
+       9104,
+       7885
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7912,
+       9431,
+       9052,
+       7912
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7941,
+       9375,
+       8999,
+       7941
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7969,
+       9318,
+       8945,
+       7969
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7996,
+       9263,
+       8893,
+       7996
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8023,
+       9211,
+       8843,
+       8023
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8048,
+       9161,
+       8797,
+       8048
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8070,
+       9116,
+       8754,
+       8070
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8090,
+       9077,
+       8717,
+       8090
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8106,
+       9045,
+       8686,
+       8106
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8118,
+       9020,
+       8663,
+       8118
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8126,
+       9004,
+       8648,
+       8126
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7327,
+       5746,
+       6160,
+       7327
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 250
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7327,
+       5746,
+       6160,
+       7327
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       7381,
+       6937,
+       7381,
+       7604
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 525
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7989,
+       7381,
+       8167,
+       7011,
+       7411
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7985,
+       7377,
+       8151,
+       7006,
+       7407
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7975,
+       7366,
+       8104,
+       6990,
+       7395
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7959,
+       7348,
+       8029,
+       6966,
+       7376
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7938,
+       7325,
+       7931,
+       6935,
+       7352
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7913,
+       7297,
+       7813,
+       6896,
+       7322
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7883,
+       7264,
+       7677,
+       6852,
+       7288
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7851,
+       7229,
+       7528,
+       6804,
+       7250
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7817,
+       7191,
+       7369,
+       6753,
+       7210
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7781,
+       7151,
+       7203,
+       6699,
+       7169
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7745,
+       7111,
+       7034,
+       6644,
+       7126
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7708,
+       7071,
+       6864,
+       6589,
+       7083
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7672,
+       7031,
+       6698,
+       6535,
+       7042
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7638,
+       6993,
+       6539,
+       6484,
+       7002
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7606,
+       6958,
+       6390,
+       6436,
+       6964
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7576,
+       6925,
+       6254,
+       6392,
+       6930
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7551,
+       6897,
+       6136,
+       6353,
+       6900
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7530,
+       6874,
+       6038,
+       6322,
+       6876
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7514,
+       6856,
+       5963,
+       6298,
+       6857
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7504,
+       6845,
+       5916,
+       6282,
+       6845
+      ]
+     },
+     {
+      "DurationMs": 25,
+      "Mode": 1,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "koget_2",
+   "Desc": "",
+   "Tracks": {
+    "hip": [
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       0
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       6907
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 575
+     },
+     {
+      "DurationMs": 225,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       5578,
+       9139,
+       7630,
+       7443
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 25
+     },
+     {
+      "DurationMs": 75,
+      "Mode": 0,
+      "Angles": [
+       6127,
+       6858,
+       7139,
+       7731
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 225
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       6080,
+       9419,
+       7230,
+       7504
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 25
+     },
+     {
+      "DurationMs": 125,
+      "Mode": 0,
+      "Angles": [
+       6120,
+       6726,
+       7259,
+       7486
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 225
+     },
+     {
+      "DurationMs": 475,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7616,
+       8898,
+       8407,
+       7284
+      ]
+     },
+     {
+      "DurationMs": 75,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8670,
+       9463,
+       7256,
+       8687
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 150
+     },
+     {
+      "DurationMs": 225,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       9113,
+       9761,
+       9139,
+       9113
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 75
+     },
+     {
+      "DurationMs": 425,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "Gap": true,
+      "DurationMs": 125
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7490,
+       6124,
+       6553,
+       7458
+      ]
+     },
+     {
+      "DurationMs": 150,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6049,
+       8000,
+       5902,
+       6732
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 75
+     },
+     {
+      "DurationMs": 225,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5887,
+       5239,
+       5861,
+       5887
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 75
+     },
+     {
+      "DurationMs": 350,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6832,
+       5894,
+       6273,
+       6832
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "okiagari_1",
+   "Desc": "うつ伏せ",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 3000,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       4498,
+       7637,
+       7582,
+       7567
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 500
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       9645,
+       7935,
+       7736,
+       7514
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 500
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8861,
+       9772,
+       9802,
+       8839
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1025
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7932,
+       9570,
+       9235,
+       7895
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 325
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5920,
+       5407,
+       4966,
+       5944
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1025
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       7141,
+       5445,
+       5643,
+       7167
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "okiagari_2",
+   "Desc": "仰向け",
+   "Tracks": {
+    "hip": [
+     {
+      "DurationMs": 3700,
+      "Mode": 0,
+      "Angles": [
+       7500
+      ]
+     }
+    ],
+    "r_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7405,
+       7655,
+       10307,
+       7201
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       9789,
+       8837,
+       7543,
+       7317
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 500
+     },
+     {
+      "DurationMs": 700,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7128,
+       7648,
+       5139,
+       7486
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       4669,
+       8836,
+       7373,
+       7320
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 500
+     },
+     {
+      "DurationMs": 700,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       9113,
+       9761,
+       9139,
+       9113
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1500
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8315,
+       9580,
+       9163,
+       8496
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8129,
+       8999,
+       8643,
+       8129
+      ]
+     }
+    ],
+    "l_leg": [
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 200
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       5887,
+       5239,
+       5861,
+       5887
+      ]
+     },
+     {
+      "Gap": true,
+      "DurationMs": 1500
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6714,
+       5205,
+       5777,
+       6675
+      ]
+     },
+     {
+      "DurationMs": 500,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       6841,
+       5900,
+       6277,
+       6841
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "Name": "syoki_arm",
+   "Desc": "",
+   "Tracks": {
+    "hip": [],
+    "r_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       8685,
+       3648
+      ]
+     }
+    ],
+    "l_arm": [
+     {
+      "DurationMs": 25,
+      "Mode": 0,
+      "Angles": [
+       7500,
+       8833,
+       6315,
+       3648
+      ]
+     }
+    ],
+    "r_leg": [],
+    "l_leg": []
+   }
+  }
+ ]
+}

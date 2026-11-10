@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>モーション復元（ExportData.h → アプリデータ）</title>
+<style>
+  :root {
+    --bg: #F0F0F0; --panel: #FFFFFF; --line: #B5B5B5; --line2: #D0D0D0; --text: #1E1E1E; --sub: #64748B;
+    --accent: #2563EB; --accent-bg: #DBEAFE; --ok: #059669; --ng: #DC2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: 'Segoe UI', 'Meiryo', 'Helvetica Neue', 'Noto Sans CJK JP', sans-serif; background: var(--bg); color: var(--text);
+         font-size: 12px; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 13px; margin: 0 10px 0 0; }
+  button { font: 600 11.5px 'Segoe UI', 'Meiryo', sans-serif; padding: 3px 9px; cursor: pointer; background: #F8FAFC; color: #1E293B;
+           border: 1px solid #94A3B8; border-bottom-width: 2px; border-radius: 3px; }
+  button:hover { background: #EEF2F7; }
+  button.primary { background: var(--accent); border-color: #1E40AF; color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
+  .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+  #status { color: var(--sub); margin-left: auto; font-size: 11px; max-width: 60%; text-align: right; }
+  main { flex: 1; display: grid; grid-template-columns: 230px minmax(0, 1fr) 280px; min-height: 0; }
+  aside, section { overflow: auto; min-height: 0; }
+  .pane { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; }
+  .pane:last-child { border-right: none; border-left: 1px solid var(--line); }
+  .pane-h { font-weight: 700; padding: 6px 8px; background: #E2E8F0; border-bottom: 1px solid var(--line2); font-size: 11.5px; }
+  .pane-b { padding: 6px; overflow: auto; flex: 1; }
+
+  /* モーション一覧 */
+  .m-item { padding: 5px 6px; border-radius: 2px; cursor: pointer; color: #334155; margin-bottom: 2px; border: 1px solid transparent; }
+  .m-item:hover { background: #F1F5F9; }
+  .m-item.sel { background: var(--accent-bg); border-color: #60A5FA; color: #1E3A8A; font-weight: 700; }
+  .m-item .nm { font-family: Consolas, 'Courier New', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m-item .ds { font-size: 10px; color: var(--sub); font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m-item .meta { font-size: 10px; display: flex; gap: 6px; margin-top: 2px; font-weight: 400; }
+  .tag { font-size: 10px; background: #E2E8F0; color: #475569; padding: 0 4px; border-radius: 2px; }
+  .ok { color: var(--ok); } .ng { color: var(--ng); }
+
+  /* タイムライン（PCアプリの編集画面に寄せた見た目） */
+  .center { display: flex; flex-direction: column; min-width: 0; background: var(--panel); }
+  .tl-toolbar { display: flex; gap: 6px; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--line2); background: #FAFAFA; }
+  .tl-scroll { overflow: auto; flex: 1 1 auto; min-height: 200px; position: relative; }
+  .tl-row { display: flex; height: 36px; border-bottom: 1px solid #E2E8F0; min-width: max-content; }
+  .tl-label { width: 130px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 6px; font-weight: 600; color: #334155;
+              background: #FFF; border-right: 1px solid #CBD5E1; position: sticky; left: 0; z-index: 10; }
+  .tl-label .dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .tl-label .cnt { margin-left: auto; font-size: 10px; color: var(--sub); font-weight: 400; }
+  .tl-ruler .tl-label { background: #E2E8F0; font-weight: 700; color: #1E293B; }
+  .tl-ruler { height: 22px; background: #F1F5F9; }
+  .tl-lane { position: relative; flex: none; }
+  .tick { position: absolute; top: 0; bottom: 0; border-left: 1px solid #CBD5E1; font-size: 10px; color: #475569; padding-left: 3px; line-height: 22px; }
+  .gridline { position: absolute; top: 0; bottom: 0; border-left: 1px dotted #E2E8F0; pointer-events: none; }
+  .blk { position: absolute; top: 5px; height: 25px; border-radius: 3px; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 4px 0 18px;
+         overflow: hidden; white-space: nowrap; cursor: pointer; user-select: none; }
+  .blk.off { background: #fff !important; color: #475569; border: 1px dashed var(--c); padding-left: 18px; }
+  .blk.gap { background: repeating-linear-gradient(135deg, #F1F5F9 0 6px, #E2E8F0 6px 12px) !important; color: #475569;
+             border: 1px dashed #94A3B8; padding-left: 4px; font-weight: 400; }
+  .blk.sel { outline: 2px solid #111; z-index: 5; }
+  .blk .ck { position: absolute; left: 3px; top: 4px; width: 12px; height: 12px; border-radius: 2px; background: rgba(255,255,255,.9);
+             color: var(--c); font-size: 10px; line-height: 12px; text-align: center; border: 1px solid rgba(0,0,0,.25); }
+  .blk.off .ck { background: #fff; color: transparent; }
+  .blk.gap .ck { display: none; }
+  .tl-empty { padding: 30px; color: var(--sub); text-align: center; line-height: 1.8; }
+  .plot-wrap { border-top: 1px solid var(--line2); padding: 6px 8px; background: #FFF; }
+  .plot-wrap .cap { font-weight: 700; margin-bottom: 4px; font-size: 11px; color: #334155; }
+  canvas#plot { display: block; width: 100%; }
+  .legend { display: flex; gap: 8px; font-size: 10px; color: var(--sub); flex-wrap: wrap; margin-top: 2px; }
+  .legend i { display: inline-block; width: 10px; height: 3px; vertical-align: middle; margin-right: 3px; }
+
+  /* 詳細 */
+  .kv { display: grid; grid-template-columns: 74px 1fr; gap: 3px 8px; margin-bottom: 8px; }
+  .kv b { color: var(--sub); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; font-size: 11px; }
+  th, td { border-bottom: 1px solid #E2E8F0; padding: 3px 4px; text-align: right; font-family: Consolas, 'Courier New', monospace; }
+  th { font-family: inherit; background: #F1F5F9; color: #334155; }
+  td:first-child, th:first-child { text-align: left; font-family: inherit; }
+  .note { font-size: 10.5px; color: var(--sub); line-height: 1.6; margin-top: 8px; }
+  .toggle { width: 100%; margin-bottom: 8px; }
+  .pill { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 8px; background: #E2E8F0; color: #334155; }
+  .drop-hint { position: fixed; inset: 0; background: rgba(37,99,235,.12); border: 3px dashed var(--accent); display: none; pointer-events: none;
+               align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--accent); }
+  .drop-hint.on { display: flex; }
+  input[type=file] { display: none; }
+  .modal-back { position: fixed; inset: 0; background: rgba(15,23,42,.45); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .modal-back.on { display: flex; }
+  .modal { background: var(--panel); width: min(520px, 92vw); max-height: 80vh; display: flex; flex-direction: column; border-radius: 4px; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+  .modal-h { font-weight: 700; font-size: 13px; padding: 10px 12px; border-bottom: 1px solid var(--line2); }
+  .modal-tools { display: flex; gap: 6px; padding: 6px 12px; border-bottom: 1px solid #E2E8F0; }
+  .modal-list { overflow: auto; padding: 6px 12px; flex: 1; min-height: 120px; }
+  .save-item { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; border-bottom: 1px solid #F1F5F9; cursor: pointer; }
+  .save-item:hover { background: #F8FAFC; }
+  .save-item input { margin-top: 3px; }
+  .save-item input:disabled + div { opacity: .45; }
+  .save-item .nm { font-family: Consolas, 'Courier New', monospace; font-weight: 700; }
+  .save-item .ds { font-size: 11px; color: var(--sub); }
+  .save-item .tag { margin-left: auto; }
+  .modal-f { display: flex; gap: 6px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--line2); }
+  .modal-f .grow { flex: 1; }
+  .modal-f b { font-size: 14px; color: var(--accent); }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+    .pane { border-right: none; border-bottom: 1px solid var(--line); max-height: 260px; }
+    .pane:last-child { border-left: none; }
+    #status { max-width: 100%; margin-left: 0; text-align: left; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>モーション復元</h1>
+  <button id="btn-open">ExportData.h を開く</button>
+  <input type="file" id="file" accept=".h,.txt,.hpp,.c,.cpp">
+  <span class="sep"></span>
+  <button id="btn-all" disabled>このモーションを全選択</button>
+  <button id="btn-none" disabled>全解除</button>
+  <span class="sep"></span>
+  <button id="btn-zoom-out" disabled>縮小</button>
+  <button id="btn-zoom-in" disabled>拡大</button>
+  <span class="sep"></span>
+  <button id="btn-verify" disabled>選択状態を検証</button>
+  <button id="btn-restore" class="primary" disabled>保存…</button>
+  <span id="status">ExportData.h をここにドロップするか「開く」を押してください</span>
+</header>
+
+<main>
+  <aside class="pane">
+    <div class="pane-h" id="list-h">モーション</div>
+    <div class="pane-b" id="list"></div>
+  </aside>
+
+  <section class="center">
+    <div class="tl-scroll" id="tl-scroll"><div class="tl-empty" id="tl">ExportData.h を読み込むと、ここにモーションのタイムラインが表示されます。<br>
+      キーフレーム（ブロック）をクリックすると詳細を表示し、左端のチェックで復元対象を切り替えます。</div></div>
+    <div class="plot-wrap" id="plot-wrap" style="display:none">
+      <div class="cap" id="plot-cap">波形（選択中の部位の、ExportData の元の値）</div>
+      <canvas id="plot" height="170"></canvas>
+      <div class="legend" id="plot-legend"></div>
+    </div>
+  </section>
+
+  <aside class="pane">
+    <div class="pane-h">詳細</div>
+    <div class="pane-b" id="detail"></div>
+  </aside>
+</main>
+
+<div class="modal-back" id="save-dlg">
+  <div class="modal">
+    <div class="modal-h">保存するモーションを選択</div>
+    <div class="modal-tools">
+      <button id="save-all">すべて選択</button>
+      <button id="save-none">すべて解除</button>
+    </div>
+    <div class="modal-list" id="save-list"></div>
+    <div class="modal-f">
+      <span>選択されたモーション数：<b id="save-count">0</b></span>
+      <span class="grow"></span>
+      <button id="save-cancel">キャンセル</button>
+      <button id="save-go" class="primary" disabled>選択モーションの復元</button>
+    </div>
+  </div>
+</div>
+
+<div class="drop-hint" id="drop-hint">ExportData.h を読み込む</div>
+
+<script>
+"use strict";
+// ==============================================================
+// モーション復元ツール（単体HTML・外部依存なし）
+//
+//  入力 : ExportData.h（ファーム用。フレームデータ = 1制御周期ごとの論理ICS値）
+//  出力 : PCアプリの motions.json と同じ形式（robot-motions / version 5 / logical-ics）
+//
+//  PCアプリの書き出し（PC_App/index.html の sampleMotion）を逆算する:
+//   ・各部位のトラックは「キーフレーム {DurationMs, Mode, Angles}」と「空白 {Gap, DurationMs}」の列
+//   ・1コマ = 1000/fps ms。キーフレーム区間の値は、直前の目標値 → 今回の目標値を smoothstep（Mode 0）
+//     または即時（Mode 1 = 一気）で補間したもの。-1 = 触らない、0 = FREE
+//   ・Pose（座標IK）は書き出し時に関節角へ変換されて消えるため、復元できるのは関節角だけ
+//
+//  復元の方針:
+//   1) 各部位の列を、「キーフレーム区間」への分割として解く（動的計画法で区間数が最小のもの）
+//      - 区間の中の値が smoothstep で再現できる → Mode 0 の動き
+//      - 区間の中で値が一定 → 保持（直前の目標と同じ）または一気（Mode 1 / 直接）
+//      - 全軸 -1 → 空白
+//   2) 解いた結果を PCアプリと同じ sampleMotion で再展開し、元のフレームと1コマずつ比べて検証する
+//   3) 選んだキーフレーム以外は空白に置き換え、アプリデータ(JSON)として書き出す
+//
+//  行数の数え方は2通りある（round(total/dt) と その+1）。両方試して元データを再現する方を使う。
+//  ExportData.h の中身が書き出された時期の PCアプリの数え方によって変わるため。
+// ==============================================================
+
+const MIN_FRAME_MS = 20;
+// 部位（JSON の Tracks の順序は PCアプリと同じ）
+const PART_DEFS = [
+  { key: "hip",   label: "腰 (Hip)",        short: "腰",   color: "#F59E0B", axes: [0] },
+  { key: "r_arm", label: "右腕 (Right Arm)", short: "右腕", color: "#2563EB", axes: [5, 6, 7, 8] },
+  { key: "l_arm", label: "左腕 (Left Arm)",  short: "左腕", color: "#059669", axes: [1, 2, 3, 4] },
+  { key: "r_leg", label: "右脚 (Right Leg)", short: "右脚", color: "#9333EA", axes: [14, 15, 16, 17, 18] },
+  { key: "l_leg", label: "左脚 (Left Leg)",  short: "左脚", color: "#DB2777", axes: [9, 10, 11, 12, 13] },
+];
+// 画面の表示順（PCアプリの TRACK_ORDER と同じ）
+const DISPLAY_ORDER = ["r_arm", "l_arm", "hip", "r_leg", "l_leg"];
+const AXIS_NAMES = ["腰 (hipServo)", "左肩 J1", "左肩 J2", "左肘 J3", "左手首 J4", "右肩 J1", "右肩 J2", "右肘 J3", "右手首 J4",
+  "左腿 1", "左腿 2", "左膝 3", "左足首 4", "左足首 5", "右腿 1", "右腿 2", "右膝 3", "右足首 4", "右足首 5"];
+const AXIS_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4"];
+const KIND_LABEL = { gap: "空白", hold: "保持", move: "補間", jump: "一気" };
+
+const partByKey = k => PART_DEFS.find(p => p.key === k);
+
+// ---------------- 1. ExportData.h の読み込み ----------------
+function parseExportHeader(text) {
+  const fpsM = /FPS\s*=\s*(\d+)/.exec(text);
+  const fps = fpsM ? parseInt(fpsM[1], 10) : 40;
+  const re = /namespace\s+(\w+)\s*\{\s*inline\s+const\s+ExportFrame\s+flameData\[\]\s*=\s*\{([\s\S]*?)\n\s*\};\s*inline\s+const\s+uint16_t\s+flameNum\s*=\s*(\d+)\s*;/g;
+  const motions = [];
+  let m;
+  while ((m = re.exec(text))) {
+    const name = m[1];
+    // 直前の「// <モーション名> / // <説明文>」を探す（同じ名前のときだけ採用）
+    const pre = text.slice(0, m.index);
+    let desc = "";
+    const hdrAt = pre.lastIndexOf("// <モーション名>");
+    if (hdrAt >= 0) {
+      const hdr = pre.slice(hdrAt);
+      const nm = /<モーション名>\s*(\S+)/.exec(hdr);
+      const dm = /<説明文>\s*([^\r\n]*)/.exec(hdr);
+      if (nm && nm[1] === name && dm) desc = dm[1].trim();
+    }
+    if (desc === "（なし）") desc = "";
+    const rows = [];
+    const rowRe = /\{\{([^}]*)\}\}/g;
+    let r;
+    while ((r = rowRe.exec(m[2]))) {
+      const v = r[1].split(",").map(s => parseInt(s.trim(), 10));
+      if (v.length !== 19 || v.some(x => Number.isNaN(x))) throw new Error(`「${name}」の行が19軸ではありません`);
+      rows.push(v);
+    }
+    const declared = parseInt(m[3], 10);
+    if (rows.length !== declared) throw new Error(`「${name}」: flameNum=${declared} と行数 ${rows.length} が一致しません`);
+    motions.push({ name, desc, rows, declared });
+  }
+  return { fps, motions };
+}
+
+// ---------------- 2. PCアプリと同じ展開（sampleMotion の移植） ----------------
+function trackLen(items) { return items.reduce((s, it) => s + it.DurationMs, 0); }
+
+// tracks: { hip:[items], r_arm:[...], ... } → 19軸 × コマ のフレーム配列
+//  plusOne: 行数の数え方。true = round(total/dt)+1（現行の PCアプリ）、false = round(total/dt)（ExportData の一部はこちら）
+function sampleTracks(tracks, fps, plusOne = true) {
+  const dt = 1000 / fps;
+  const total = Math.max(0, ...PART_DEFS.map(p => trackLen(tracks[p.key] || [])));
+  const n = Math.max(1, Math.round(total / dt) + (plusOne ? 1 : 0));
+  const rows = Array.from({ length: n }, () => new Array(19).fill(-1));
+  for (const p of PART_DEFS) {
+    const tr = tracks[p.key] || [];
+    if (!tr.some(it => !it.Gap)) continue;
+    let acc = 0, prev = p.axes.map(() => null);
+    const segs = tr.map(it => {
+      const sg = { it, t0: acc, t1: acc + it.DurationMs, start: prev.slice() };
+      if (!it.Gap) prev = p.axes.map((_, j) => (it.Angles[j] === -1 ? prev[j] : it.Angles[j]));
+      acc += it.DurationMs;
+      return sg;
+    });
+    const last = prev;
+    for (let k = 0; k < n; k++) {
+      const t = k * dt;
+      const sg = segs.find(x => t < x.t1 - 1e-6);
+      if (!sg) { p.axes.forEach((a, j) => { if (last[j] !== null) rows[k][a] = last[j]; }); continue; }
+      if (sg.it.Gap) continue;
+      const it = sg.it;
+      const x = Math.min(1, Math.max(0, (t - sg.t0) / Math.max(MIN_FRAME_MS, it.DurationMs)));
+      const e = it.Mode === 1 ? 1 : x * x * (3 - 2 * x);
+      p.axes.forEach((a, j) => {
+        const v = it.Angles[j], st = sg.start[j];
+        if (v === -1 || v === 0) { rows[k][a] = v; return; }
+        rows[k][a] = (st === null || st === 0) ? v : Math.round(st + (v - st) * e);
+      });
+    }
+  }
+  return rows;
+}
+
+// ---------------- 3. 逆算（キーフレームへの分割） ----------------
+// j コマ目の補間係数（sampleTracks と同じ式）
+function easeAt(j, N, dt) {
+  const x = Math.min(1, Math.max(0, (j * dt) / Math.max(MIN_FRAME_MS, N * dt)));
+  return x * x * (3 - 2 * x);
+}
+
+// 軸 a が smoothstep で V → T に動いた、とみなせる T を探す（完全一致するものだけ）
+function fitTarget(vals, k, N, a, V, dt) {
+  let num = 0, den = 0;
+  for (let j = 1; j < N; j++) {
+    const w = easeAt(j, N, dt);
+    num += (vals[k + j][a] - V) * w;
+    den += w * w;
+  }
+  if (den === 0) return [];
+  const est = V + num / den;
+  const base = Math.round(est);
+  const hit = [];
+  for (let d = -3; d <= 3; d++) {
+    const T = base + d;
+    if (T === V || T === 0 || T === -1) continue;   // 0(FREE)は直接出力されるので補間には入らない
+    let ok = true;
+    for (let j = 0; j < N && ok; j++) {
+      if (Math.round(V + (T - V) * easeAt(j, N, dt)) !== vals[k + j][a]) ok = false;
+    }
+    if (ok) hit.push({ T, dist: Math.abs(T - est) });
+  }
+  hit.sort((x, y) => x.dist - y.dist);
+  return hit.slice(0, 2).map(h => h.T);
+}
+
+// 区間 [k, e) を1つのキーフレームとして表せるか。表せるなら候補（T配列・Mode・kind）の配列を返す
+function fitInterval(vals, k, e, V, dt) {
+  const N = e - k, m = V.length;
+  const perAxis = [];
+  let allNeg = true;
+  for (let a = 0; a < m; a++) {
+    const s0 = vals[k][a];
+    let same = true, neg = 0;
+    for (let j = 0; j < N; j++) {
+      const v = vals[k + j][a];
+      if (v !== s0) same = false;
+      if (v === -1) neg++;
+    }
+    if (neg === N) { perAxis.push([{ T: -1, moving: false }]); continue; }
+    allNeg = false;
+    if (neg > 0) return null;                        // 同じキーフレーム内で -1 と値が混在するのはおかしい
+    if (same) { perAxis.push([{ T: s0, moving: false }]); continue; }
+    // 動く軸: 開始値は直前の目標と一致し、0/未設定からは動けない
+    if (V[a] === null || V[a] === 0 || s0 !== V[a]) return null;
+    const ts = fitTarget(vals, k, N, a, V[a], dt);
+    if (!ts.length) return null;
+    perAxis.push(ts.map(T => ({ T, moving: true })));
+  }
+  if (allNeg) return [{ T: new Array(m).fill(-1), mode: 0, kind: "gap" }];
+
+  // 候補の組み合わせ（軸ごとに候補は高々2つ）
+  const results = [];
+  const cur = new Array(m);
+  const rec = a => {
+    if (a === m) {
+      const r = classify(cur, V, N);
+      if (r) results.push(r);
+      return;
+    }
+    for (const o of perAxis[a]) { cur[a] = o; rec(a + 1); }
+  };
+  rec(0);
+  return results;
+}
+
+// 1組の候補がどの Mode で再現されるかを判定
+function classify(combo, V, N) {
+  const T = combo.map(o => o.T);
+  const moving = combo.some(o => o.moving);
+  // 定数の軸が Mode 0 で再現できる条件: 開始が未設定 / FREE / 目標が 0 / 直前の目標と同じ
+  const constOk = (a) => T[a] === -1 || V[a] === null || V[a] === 0 || T[a] === 0 || T[a] === V[a];
+  if (moving) {
+    for (let a = 0; a < T.length; a++) if (!combo[a].moving && !constOk(a)) return null;
+    return { T, mode: 0, N, kind: "move" };
+  }
+  let ok0 = true;
+  for (let a = 0; a < T.length; a++) if (!constOk(a)) ok0 = false;
+  if (ok0) {
+    const changed = T.some((t, a) => t !== -1 && t !== V[a]);
+    return { T, mode: 0, N, kind: changed ? "jump" : "hold" };
+  }
+  return { T, mode: 1, N, kind: "jump" };     // 定数だが直前の目標と違う → 一気（Mode 1）
+}
+
+// 1部位の列 → キーフレーム / 空白 の列（区間数が最小になる分割を動的計画法で求める）
+function decodePart(rows, part, fps, plusOne = true) {
+  const dt = 1000 / fps;
+  const M = rows.length - (plusOne ? 1 : 0);       // plusOne のときは最後の1行（最後の目標の保持）を解かない
+  const axes = part.axes, m = axes.length;
+  if (M <= 0) return [];
+  const vals = [];
+  for (let k = 0; k < M; k++) vals.push(axes.map(a => rows[k][a]));
+  if (vals.every(r => r.every(v => v === -1))) return [];
+
+  const layers = Array.from({ length: M + 1 }, () => new Map());
+  const V0 = new Array(m).fill(null);
+  layers[0].set(JSON.stringify(V0), { cost: 0, V: V0, back: null });
+  for (let k = 0; k < M; k++) {
+    for (const node of layers[k].values()) {
+      for (let e = k + 1; e <= M; e++) {
+        const fits = fitInterval(vals, k, e, node.V, dt);
+        if (!fits) continue;
+        for (const f of fits) {
+          const V2 = f.T.map((t, a) => (t === -1 ? node.V[a] : t));
+          const key2 = JSON.stringify(V2);
+          const cost = node.cost + 1;
+          const cur = layers[e].get(key2);
+          if (!cur || cost < cur.cost) {
+            layers[e].set(key2, { cost, V: V2, back: { from: node, k, e, T: f.T, mode: f.mode, kind: f.kind } });
+          }
+        }
+      }
+    }
+  }
+  let best = null;
+  for (const node of layers[M].values()) if (!best || node.cost < best.cost) best = node;
+  if (!best) return [];                             // 到達不能（通常は起きない: 1コマずつなら必ず解ける）
+  const seq = [];
+  for (let node = best; node && node.back; node = node.back.from) seq.push(node.back);
+  seq.reverse();
+  let startMs = 0;
+  return seq.map(b => {
+    const N = b.e - b.k, dur = Math.round(N * dt);
+    const item = b.kind === "gap"
+      ? { Gap: true, DurationMs: dur }
+      : { DurationMs: dur, Mode: b.mode, Angles: b.T.slice() };
+    item._kind = b.kind;
+    item._start = startMs;
+    item._frame = b.k;
+    startMs += dur;
+    return item;
+  });
+}
+
+// ---------------- 4. 比較・モーション解析 ----------------
+function compareRows(orig, re) {
+  if (orig.length !== re.length) return { bad: orig.length, badAxes: 0, length: false, first: [] };
+  let bad = 0, badAxes = 0;
+  const first = [];
+  for (let k = 0; k < orig.length; k++) {
+    let rowBad = false;
+    for (let a = 0; a < 19; a++) {
+      if (orig[k][a] !== re[k][a]) {
+        badAxes++; rowBad = true;
+        if (first.length < 5) first.push({ k, a, exp: orig[k][a], got: re[k][a] });
+      }
+    }
+    if (rowBad) bad++;
+  }
+  return { bad, badAxes, length: true, first };
+}
+
+// 末尾の「保持」は、トラックが終わった後も最後の目標が出るので省いてもよい（出力は変わらない）。
+// ただし全体の長さ（= 行数）は保つ必要があるので、最も長い部位に保持を1つ戻す。
+function tidyTracks(tracks, fps, M) {
+  const dt = 1000 / fps;
+  const target = M * dt;
+  for (const p of PART_DEFS) {
+    const items = tracks[p.key];
+    while (items.length && !items[items.length - 1].Gap && items[items.length - 1]._kind === "hold") items.pop();
+  }
+  let longest = null, longestLen = -1;
+  for (const p of PART_DEFS) {
+    const items = tracks[p.key];
+    if (!items.some(x => !x.Gap)) continue;
+    const L = trackLen(items);
+    if (L > longestLen) { longest = p; longestLen = L; }
+  }
+  if (longest && longestLen < target - 1e-6) {
+    const items = tracks[longest.key];
+    const V = longest.axes.map(() => -1);
+    for (const it of items) if (!it.Gap) it.Angles.forEach((v, j) => { if (v !== -1) V[j] = v; });
+    const start = longestLen;
+    items.push({ DurationMs: target - longestLen, Mode: 0, Angles: V, _kind: "hold", _start: start, _frame: Math.round(start / dt) });
+  }
+}
+
+// 書き出し規則（plusOne）を指定して解析し、元データと1コマずつ比べる
+function analyzeWith(mo, fps, plusOne) {
+  const M = mo.rows.length - (plusOne ? 1 : 0);
+  const tracks = {};
+  for (const p of PART_DEFS) tracks[p.key] = decodePart(mo.rows, p, fps, plusOne);
+  tidyTracks(tracks, fps, M);
+  // 開始時刻を振り直す（末尾の調整後も正しい値にする）
+  for (const p of PART_DEFS) {
+    let s = 0;
+    for (const it of tracks[p.key]) { it._start = s; s += it.DurationMs; }
+  }
+  const cmp = compareRows(mo.rows, sampleTracks(tracks, fps, plusOne));
+  return { tracks, cmp, plusOne };
+}
+
+function analyze(mo, fps) {
+  // 2通りの数え方のうち、元データを再現できる方を採用する（現行の PCアプリの数え方を先に試す）
+  let best = analyzeWith(mo, fps, true);
+  if (best.cmp.bad) {
+    const alt = analyzeWith(mo, fps, false);
+    if (alt.cmp.bad < best.cmp.bad) best = alt;
+  }
+  const { tracks, cmp, plusOne } = best;
+  const selected = new Set();
+  for (const p of PART_DEFS) tracks[p.key].forEach((it, i) => { if (!it.Gap) selected.add(p.key + ":" + i); });
+  const totalMs = Math.max(0, ...PART_DEFS.map(p => trackLen(tracks[p.key])));
+  return { name: mo.name, desc: mo.desc, rows: mo.rows, fps, plusOne, tracks, cmp, selected, totalMs };
+}
+
+// ---------------- 5. アプリデータ（motions.json 形式）の生成 ----------------
+function pushGap(items, ms) {
+  const last = items[items.length - 1];
+  if (last && last.Gap) last.DurationMs += ms;
+  else items.push({ Gap: true, DurationMs: ms });
+}
+
+// 選ばれなかったキーフレームは空白に置き換える（時間軸は元のまま保つ）
+function buildTracks(mo) {
+  const out = {};
+  for (const p of PART_DEFS) {
+    const items = [];
+    mo.tracks[p.key].forEach((it, i) => {
+      if (it.Gap) return pushGap(items, it.DurationMs);
+      if (mo.selected.has(p.key + ":" + i)) {
+        items.push({ DurationMs: it.DurationMs, Mode: it.Mode, Angles: it.Angles.slice() });
+      } else {
+        pushGap(items, it.DurationMs);
+      }
+    });
+    out[p.key] = items;
+  }
+  return out;
+}
+
+function buildAppData(motions, fps) {
+  const list = [];
+  for (const mo of motions) {
+    if (mo.selected.size === 0) continue;
+    list.push({ Name: mo.name, Desc: mo.desc, Tracks: buildTracks(mo) });
+  }
+  return { format: "robot-motions", version: 5, units: "logical-ics", fps, motions: list };
+}
+
+// ==============================================================
+// UI
+// ==============================================================
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+const app = { fps: 40, motions: [], cur: -1, sel: null, zoom: 0.3, file: "" };
+const curMo = () => (app.cur >= 0 ? app.motions[app.cur] : null);
+
+function setStatus(msg, isErr) {
+  const s = $("status");
+  s.textContent = msg;
+  s.style.color = isErr ? "var(--ng)" : "var(--sub)";
+}
+
+function loadText(text, fname) {
+  let parsed;
+  try { parsed = parseExportHeader(text); }
+  catch (e) { setStatus("読み込み失敗: " + e.message, true); return; }
+  if (!parsed.motions.length) { setStatus("モーションが見つかりません（ExportData.h の形式ではありません）", true); return; }
+  const t0 = performance.now();
+  app.fps = parsed.fps;
+  app.motions = parsed.motions.map(mo => analyze(mo, parsed.fps));
+  app.cur = 0; app.sel = null; app.file = fname;
+  const ok = app.motions.filter(m => m.cmp.bad === 0).length;
+  setStatus(`${fname}: ${app.motions.length} モーション / 再現一致 ${ok} 件（解析 ${Math.round(performance.now() - t0)} ms）`);
+  renderAll();
+}
+
+function renderAll() {
+  const has = app.motions.length > 0;
+  for (const id of ["btn-all", "btn-none", "btn-verify", "btn-restore", "btn-zoom-in", "btn-zoom-out"]) $(id).disabled = !has;
+  renderList();
+  renderTimeline();
+  renderPlot();
+  renderDetail();
+}
+
+function renderList() {
+  const list = $("list");
+  list.innerHTML = "";
+  $("list-h").textContent = app.motions.length ? `モーション（${app.motions.length}）` : "モーション";
+  app.motions.forEach((mo, i) => {
+    const d = el("div", "m-item" + (i === app.cur ? " sel" : ""));
+    d.appendChild(el("div", "nm", mo.name));
+    d.appendChild(el("div", "ds", mo.desc || "（説明なし）"));
+    const meta = el("div", "meta");
+    const kf = PART_DEFS.reduce((s, p) => s + mo.tracks[p.key].filter(x => !x.Gap).length, 0);
+    meta.appendChild(el("span", "tag", `${kf} KF`));
+    meta.appendChild(el("span", "tag", `選択 ${mo.selected.size}`));
+    const v = el("span", mo.cmp.bad === 0 ? "ok" : "ng", mo.cmp.bad === 0 ? "✓ 再現" : `✗ ${mo.cmp.bad}コマ不一致`);
+    meta.appendChild(v);
+    d.appendChild(meta);
+    d.addEventListener("click", () => { app.cur = i; app.sel = null; renderAll(); });
+    list.appendChild(d);
+  });
+}
+
+function renderTimeline() {
+  const wrap = $("tl");
+  wrap.innerHTML = "";
+  wrap.className = "";
+  const mo = curMo();
+  if (!mo) {
+    wrap.className = "tl-empty";
+    wrap.innerHTML = "ExportData.h を読み込むと、ここにモーションのタイムラインが表示されます。<br>キーフレーム（ブロック）をクリックすると詳細を表示し、左端のチェックで復元対象を切り替えます。";
+    return;
+  }
+  const z = app.zoom;
+  const dt = 1000 / mo.fps;
+  const laneW = Math.max(600, Math.ceil(mo.totalMs * z) + 60);
+  const tickMs = z >= 0.4 ? 250 : (z >= 0.2 ? 500 : 1000);
+
+  // 目盛り（PCアプリのルーラーと同じ）
+  const ruler = el("div", "tl-row tl-ruler");
+  ruler.appendChild(el("div", "tl-label", `時間 / ${mo.fps} fps`));
+  const rl = el("div", "tl-lane");
+  rl.style.width = laneW + "px";
+  for (let t = 0; t <= mo.totalMs + 1e-6; t += tickMs) {
+    const tk = el("div", "tick", `${(t / 1000).toFixed(tickMs < 500 ? 2 : 1)}s`);
+    tk.style.left = (t * z) + "px";
+    rl.appendChild(tk);
+  }
+  ruler.appendChild(rl);
+  wrap.appendChild(ruler);
+
+  for (const key of DISPLAY_ORDER) {
+    const p = partByKey(key);
+    const items = mo.tracks[key];
+    const row = el("div", "tl-row");
+    const lb = el("div", "tl-label");
+    const dot = el("span", "dot"); dot.style.background = p.color;
+    lb.appendChild(dot);
+    lb.appendChild(el("span", "", p.short));
+    const nKf = items.filter(x => !x.Gap).length;
+    lb.appendChild(el("span", "cnt", nKf ? `${nKf} KF` : "（未使用）"));
+    row.appendChild(lb);
+    const lane = el("div", "tl-lane");
+    lane.style.width = laneW + "px";
+    lane.style.height = "36px";
+    // 1秒ごとの補助線
+    for (let t = 0; t <= mo.totalMs; t += 1000) { const g = el("div", "gridline"); g.style.left = (t * z) + "px"; lane.appendChild(g); }
+    items.forEach((it, i) => {
+      const id = key + ":" + i;
+      const b = el("div", "blk");
+      const w = Math.max(8, it.DurationMs * z - 1);
+      b.style.left = (it._start * z) + "px";
+      b.style.width = w + "px";
+      b.title = it.Gap
+        ? `空白 ${it.DurationMs}ms（${Math.round(it.DurationMs / dt)}コマ）`
+        : `${p.short} KF#${String(kfNo(items, i)).padStart(2, "0")}  ${KIND_LABEL[it._kind]}\n開始 ${Math.round(it._start)}ms / 長さ ${it.DurationMs}ms（${Math.round(it.DurationMs / dt)}コマ）\n${it.Mode === 1 ? "Mode 1（一気）" : "Mode 0（補間）"}`;
+      if (it.Gap) {
+        b.classList.add("gap");
+        if (w > 36) b.textContent = `空白 ${it.DurationMs}ms`;
+      } else {
+        const on = mo.selected.has(id);
+        b.style.setProperty("--c", p.color);
+        if (on) b.style.background = p.color; else b.classList.add("off");
+        const ck = el("span", "ck", "✓");
+        ck.title = "復元に含める / 含めない";
+        ck.addEventListener("click", e => { e.stopPropagation(); toggleSel(id); });
+        b.appendChild(ck);
+        if (w > 30) b.appendChild(document.createTextNode(`KF${String(kfNo(items, i)).padStart(2, "0")}`));
+        if (w > 90) b.appendChild(document.createTextNode(` ${KIND_LABEL[it._kind]} ${it.DurationMs}ms`));
+        b.addEventListener("click", () => { app.sel = { key, i }; renderAll(); });
+      }
+      if (app.sel && app.sel.key === key && app.sel.i === i) b.classList.add("sel");
+      lane.appendChild(b);
+    });
+    row.appendChild(lane);
+    wrap.appendChild(row);
+  }
+}
+
+function kfNo(items, i) {
+  let n = 0;
+  for (let j = 0; j <= i; j++) if (!items[j].Gap) n++;
+  return n;
+}
+
+function toggleSel(id) {
+  const mo = curMo();
+  if (!mo) return;
+  if (mo.selected.has(id)) mo.selected.delete(id); else mo.selected.add(id);
+  renderAll();
+}
+
+// 選択中（なければ最初に KF がある）部位の、元の値の波形
+function renderPlot() {
+  const mo = curMo();
+  const wrapEl = $("plot-wrap");
+  if (!mo) { wrapEl.style.display = "none"; return; }
+  let p = app.sel ? partByKey(app.sel.key) : null;
+  if (!p) p = PART_DEFS.find(pp => mo.tracks[pp.key].some(x => !x.Gap));
+  if (!p) { wrapEl.style.display = "none"; return; }
+  wrapEl.style.display = "";
+  $("plot-cap").textContent = `波形: ${p.label}（ExportData の元の値。縦線 = キーフレームの境界、網掛け = 選択中）`;
+  const leg = $("plot-legend");
+  leg.innerHTML = "";
+  p.axes.forEach((a, j) => {
+    const s = el("span", "", AXIS_NAMES[a]);
+    const i = el("i"); i.style.background = AXIS_COLORS[j % AXIS_COLORS.length];
+    s.prepend(i);
+    leg.appendChild(s);
+  });
+
+  const cv = $("plot");
+  const W = Math.max(300, cv.parentElement.clientWidth - 16), H = 170;
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = W + "px"; cv.style.height = H + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, W, H);
+
+  const rows = mo.rows, M = rows.length;
+  let lo = Infinity, hi = -Infinity;
+  for (const r of rows) for (const a of p.axes) { const v = r[a]; if (v !== -1) { if (v < lo) lo = v; if (v > hi) hi = v; } }
+  if (!isFinite(lo)) return;
+  if (hi - lo < 10) { lo -= 5; hi += 5; }
+  const padL = 44, padR = 8, padT = 8, padB = 16;
+  const X = k => padL + (W - padL - padR) * k / Math.max(1, M - 1);
+  const Y = v => H - padB - (H - padT - padB) * (v - lo) / (hi - lo);
+  const dt = 1000 / mo.fps;
+
+  // 選択中の区間
+  if (app.sel && app.sel.key === p.key) {
+    const it = mo.tracks[p.key][app.sel.i];
+    if (it) {
+      const f0 = it._start / dt, f1 = (it._start + it.DurationMs) / dt;
+      ctx.fillStyle = "rgba(37,99,235,.10)";
+      ctx.fillRect(X(f0), padT, X(f1) - X(f0), H - padT - padB);
+    }
+  }
+  // キーフレーム境界
+  ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 1;
+  for (const it of mo.tracks[p.key]) {
+    const x = X(it._start / dt);
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, H - padB); ctx.stroke();
+  }
+  // 軸ごとの線
+  ctx.lineWidth = 1.4;
+  p.axes.forEach((a, j) => {
+    ctx.strokeStyle = AXIS_COLORS[j % AXIS_COLORS.length];
+    ctx.beginPath();
+    let pen = false;
+    for (let k = 0; k < M; k++) {
+      const v = rows[k][a];
+      if (v === -1) { pen = false; continue; }
+      if (!pen) { ctx.moveTo(X(k), Y(v)); pen = true; } else ctx.lineTo(X(k), Y(v));
+    }
+    ctx.stroke();
+  });
+  ctx.fillStyle = "#64748B"; ctx.font = "10px Consolas, monospace";
+  ctx.fillText(String(Math.round(hi)), 4, padT + 8);
+  ctx.fillText(String(Math.round(lo)), 4, H - padB);
+  ctx.fillText(`${(M - 1) * dt / 1000}s`, W - 40, H - 3);
+}
+
+function renderDetail() {
+  const box = $("detail");
+  box.innerHTML = "";
+  const mo = curMo();
+  if (!mo) { box.appendChild(el("div", "note", "（モーション未読込）")); return; }
+
+  if (!app.sel) {
+    box.appendChild(el("div", "pane-h", "モーション情報"));
+    const kv = el("div", "kv");
+    const add = (k, v) => { kv.appendChild(el("b", "", k)); kv.appendChild(el("span", "", v)); };
+    add("名前", mo.name);
+    add("説明", mo.desc || "（なし）");
+    add("フレーム", `${mo.rows.length - 1} コマ（${(mo.totalMs / 1000).toFixed(2)} 秒）`);
+    add("制御周期", `${mo.fps} fps`);
+    add("選択中", `${mo.selected.size} キーフレーム`);
+    add("検証", mo.cmp.bad === 0
+      ? `✓ 全 ${mo.rows.length} 行が元データと一致（再現 OK）`
+      : `✗ ${mo.cmp.bad} 行 / ${mo.cmp.badAxes} 値が不一致`);
+    box.appendChild(kv);
+    const t = el("table");
+    const hd = el("tr"); ["部位", "KF数", "空白", "選択"].forEach(h => hd.appendChild(el("th", "", h)));
+    t.appendChild(hd);
+    for (const p of PART_DEFS) {
+      const items = mo.tracks[p.key];
+      const tr = el("tr");
+      tr.appendChild(el("td", "", p.short));
+      tr.appendChild(el("td", "", String(items.filter(x => !x.Gap).length)));
+      tr.appendChild(el("td", "", String(items.filter(x => x.Gap).length)));
+      tr.appendChild(el("td", "", String(items.filter((x, i) => !x.Gap && mo.selected.has(p.key + ":" + i)).length)));
+      t.appendChild(tr);
+    }
+    box.appendChild(t);
+    box.appendChild(el("div", "note",
+      "ブロックをクリックするとキーフレームの詳細を表示します。左端の ✓ で復元に含めるかを切り替えます。" +
+      "含めなかったキーフレームは、同じ長さの「空白」（その部位は動かさない）として書き出されます。"));
+    box.appendChild(el("div", "note",
+      "注意: 書き出し時に Pose（座標IK）は関節角に変換されて失われているため、脚の座標値は復元できません（関節角のみ）。"));
+    return;
+  }
+
+  const p = partByKey(app.sel.key);
+  const items = mo.tracks[p.key];
+  const it = items[app.sel.i];
+  if (!it) { app.sel = null; return renderDetail(); }
+  const dt = 1000 / mo.fps;
+  const f0 = Math.round(it._start / dt), N = Math.round(it.DurationMs / dt);
+  box.appendChild(el("div", "pane-h", it.Gap ? `${p.short}：空白` : `${p.short}：KF${String(kfNo(items, app.sel.i)).padStart(2, "0")}`));
+  const kv = el("div", "kv");
+  const add = (k, v) => { kv.appendChild(el("b", "", k)); kv.appendChild(el("span", "", v)); };
+  add("開始", `${Math.round(it._start)} ms（${f0} コマ目）`);
+  add("長さ", `${it.DurationMs} ms（${N} コマ）`);
+  if (it.Gap) {
+    add("種類", "空白（この部位は動かさない）");
+  } else {
+    add("種類", `${KIND_LABEL[it._kind]}（Mode ${it.Mode}${it.Mode === 1 ? " 一気" : " 補間"}）`);
+    add("復元", mo.selected.has(p.key + ":" + app.sel.i) ? "含める" : "含めない（空白になる）");
+  }
+  box.appendChild(kv);
+  if (!it.Gap) {
+    const tg = el("button", "toggle", mo.selected.has(p.key + ":" + app.sel.i) ? "この KF を復元から外す" : "この KF を復元に含める");
+    tg.addEventListener("click", () => toggleSel(p.key + ":" + app.sel.i));
+    box.appendChild(tg);
+
+    // 直前の目標値（元データの連続性の確認用）
+    const prevOf = a => {
+      for (let i = app.sel.i - 1; i >= 0; i--) {
+        const x = items[i];
+        if (x.Gap) continue;
+        const j = p.axes.indexOf(a);
+        if (x.Angles[j] !== -1) return x.Angles[j];
+      }
+      return null;
+    };
+    const t = el("table");
+    const hd = el("tr"); ["軸", "目標", "前の目標", "元データ（先頭→末尾）"].forEach(h => hd.appendChild(el("th", "", h)));
+    t.appendChild(hd);
+    p.axes.forEach((a, j) => {
+      const tr = el("tr");
+      const tgt = it.Angles[j];
+      const fmt = v => (v === -1 ? "保持(-1)" : v === 0 ? "FREE(0)" : String(v));
+      const pv = prevOf(a);
+      const first = mo.rows[f0][a], last = mo.rows[Math.min(mo.rows.length - 1, f0 + N - 1)][a];
+      tr.appendChild(el("td", "", AXIS_NAMES[a]));
+      tr.appendChild(el("td", "", fmt(tgt)));
+      tr.appendChild(el("td", "", pv === null ? "—" : fmt(pv)));
+      tr.appendChild(el("td", "", `${fmt(first)} → ${fmt(last)}`));
+      t.appendChild(tr);
+    });
+    box.appendChild(t);
+  }
+  box.appendChild(el("div", "note", "ブロックの前後（空白や他のKF）は、この画面の下の波形で確認できます。"));
+}
+
+// ---------------- 検証・復元 ----------------
+function verifySelection() {
+  const mo = curMo();
+  if (!mo) return;
+  const tracks = buildTracks(mo);
+  const cmp = compareRows(mo.rows, sampleTracks(tracks, mo.fps, mo.plusOne));
+  const all = mo.selected.size === Object.values(mo.tracks).reduce((s, arr) => s + arr.filter(x => !x.Gap).length, 0);
+  if (cmp.bad === 0) setStatus(`${mo.name}: 選択状態で元データと一致（${mo.rows.length} 行）`);
+  else setStatus(`${mo.name}: ${cmp.bad} 行が元データと不一致` + (all ? "（全選択なのに不一致 = 復元ロジックの問題）" : "（空白にした区間は差が出るのが正常）"), !all);
+}
+
+// 保存ダイアログ: モーション単位でチェックして、選んだモーションだけを書き出す
+function openSaveDialog() {
+  if (!app.motions.length) return;
+  app.saveChecked = new Set(app.motions.map((m, i) => i).filter(i => app.motions[i].selected.size > 0));
+  const list = $("save-list");
+  list.innerHTML = "";
+  app.motions.forEach((mo, i) => {
+    const row = el("label", "save-item");
+    const cb = el("input");
+    cb.type = "checkbox";
+    cb.checked = app.saveChecked.has(i);
+    cb.disabled = mo.selected.size === 0;
+    cb.addEventListener("change", () => {
+      if (cb.checked) app.saveChecked.add(i); else app.saveChecked.delete(i);
+      updateSaveCount();
+    });
+    const tx = el("div");
+    tx.appendChild(el("div", "nm", mo.name));
+    tx.appendChild(el("div", "ds", mo.desc || "（コメントなし）"));
+    row.appendChild(cb);
+    row.appendChild(tx);
+    row.appendChild(el("span", "tag", `${mo.selected.size} KF`));
+    list.appendChild(row);
+  });
+  updateSaveCount();
+  $("save-dlg").classList.add("on");
+}
+
+function checkedMotions() {
+  return [...app.saveChecked].sort((a, b) => a - b).map(i => app.motions[i]).filter(m => m.selected.size > 0);
+}
+
+function updateSaveCount() {
+  const n = checkedMotions().length;
+  $("save-count").textContent = String(n);
+  $("save-go").disabled = n === 0;
+}
+
+function setAllSaveChecks(on) {
+  app.motions.forEach((mo, i) => {
+    if (on && mo.selected.size > 0) app.saveChecked.add(i);
+    if (!on) app.saveChecked.delete(i);
+  });
+  document.querySelectorAll("#save-list input").forEach((cb, i) => { cb.checked = app.saveChecked.has(i) && !cb.disabled; });
+  updateSaveCount();
+}
+
+function closeSaveDialog() { $("save-dlg").classList.remove("on"); }
+
+function restore(list) {
+  if (!list.length) { setStatus("復元するモーションが選ばれていません", true); return; }
+  const data = buildAppData(list, app.fps);
+  const text = JSON.stringify(data, null, 1);
+  const blob = new Blob([text], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "restored_motions.json";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  const kf = list.reduce((s, m) => s + m.selected.size, 0);
+  setStatus(`${list.length} モーション / キーフレーム ${kf} 件を復元して保存しました（restored_motions.json）`);
+}
+
+// ---------------- イベント ----------------
+$("btn-open").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", e => readFile(e.target.files[0]));
+$("btn-all").addEventListener("click", () => {
+  const mo = curMo();
+  if (!mo) return;
+  for (const p of PART_DEFS) mo.tracks[p.key].forEach((it, i) => { if (!it.Gap) mo.selected.add(p.key + ":" + i); });
+  renderAll();
+});
+$("btn-none").addEventListener("click", () => { const mo = curMo(); if (mo) { mo.selected.clear(); renderAll(); } });
+$("btn-zoom-in").addEventListener("click", () => { app.zoom = Math.min(2, app.zoom * 1.25); renderTimeline(); });
+$("btn-zoom-out").addEventListener("click", () => { app.zoom = Math.max(0.05, app.zoom / 1.25); renderTimeline(); });
+$("btn-verify").addEventListener("click", verifySelection);
+$("btn-restore").addEventListener("click", openSaveDialog);
+$("save-all").addEventListener("click", () => setAllSaveChecks(true));
+$("save-none").addEventListener("click", () => setAllSaveChecks(false));
+$("save-cancel").addEventListener("click", closeSaveDialog);
+$("save-dlg").addEventListener("click", e => { if (e.target.id === "save-dlg") closeSaveDialog(); });
+$("save-go").addEventListener("click", () => {
+  const list = checkedMotions();
+  closeSaveDialog();
+  restore(list);
+});
+
+function readFile(f) {
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => loadText(String(rd.result), f.name);
+  rd.onerror = () => setStatus("ファイルを読めませんでした", true);
+  rd.readAsText(f, "utf-8");
+}
+// ドラッグ＆ドロップ
+let dragDepth = 0;
+window.addEventListener("dragenter", e => { e.preventDefault(); dragDepth++; $("drop-hint").classList.add("on"); });
+window.addEventListener("dragleave", e => { e.preventDefault(); dragDepth--; if (dragDepth <= 0) $("drop-hint").classList.remove("on"); });
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => {
+  e.preventDefault(); dragDepth = 0; $("drop-hint").classList.remove("on");
+  readFile(e.dataTransfer.files[0]);
+});
+window.addEventListener("resize", () => { if (curMo()) renderPlot(); });
+
+// Node からの単体テスト用に公開（ブラウザでは何もしない）
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { parseExportHeader, sampleTracks, decodePart, analyze, buildAppData, compareRows };
+}
+</script>
+</body>
+</html>

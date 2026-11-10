@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robot Motion Studio</title>
+<style>
+  /* ---- WinForms / .NET 風（外部CDNに依存しない） ---- */
+  :root {
+    --bg: #F0F0F0; --panel: #FFFFFF; --line: #B5B5B5; --line2: #D0D0D0; --text: #1E1E1E; --sub: #64748B;
+    --c-hip: #F59E0B; --c-rarm: #2563EB; --c-larm: #059669; --c-rleg: #9333EA; --c-lleg: #DB2777;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: 'Segoe UI', 'Meiryo', 'Helvetica Neue', 'Noto Sans CJK JP', sans-serif; background: var(--bg); color: var(--text);
+         font-size: 12px; user-select: none; display: flex; flex-direction: column; overflow: hidden; }
+  input, select, textarea { user-select: text; font-family: inherit; }
+
+  .win-groupbox { border: 1px solid var(--line); background: var(--panel); border-radius: 3px; position: relative; }
+  .win-groupbox-header { background: linear-gradient(180deg, #F5F5F5 0%, #E8E8E8 100%); border-bottom: 1px solid var(--line2);
+      padding: 4px 8px; font-weight: 600; font-size: 11px; color: #333; display: flex; align-items: center; justify-content: space-between; }
+  .gb-body { padding: 6px; }
+
+  /* ---- ボタン: 役割ごとに色を分ける（見やすさ優先） ----
+     青=主操作 / 緑=作成・保存・接続 / 橙=脱力 / 赤=停止・危険 / 赤枠=削除 / 灰=補助 */
+  .win-btn { background: linear-gradient(180deg, #FFFFFF 0%, #E9EBEE 100%); border: 1px solid #8C939D; border-radius: 3px; color: #111827;
+      font-size: 11.5px; font-family: 'Segoe UI', 'Meiryo', 'Noto Sans CJK JP', sans-serif; font-weight: 600; padding: 3px 9px; cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 1px rgba(0,0,0,.06); white-space: nowrap; transition: filter .1s, background .1s; }
+  .win-btn:hover { background: linear-gradient(180deg, #EEF6FF 0%, #D4E8FC 100%); border-color: #0A64C2; }
+  .win-btn:active { filter: brightness(.92); }
+  .win-btn:focus-visible { outline: 2px solid #F59E0B; outline-offset: 1px; }
+  .win-btn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.6); }
+  .win-btn-primary, .win-btn-success, .win-btn-danger, .win-btn-warning, .win-btn-teal { color: #FFF; text-shadow: 0 1px 1px rgba(0,0,0,.25); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+  .win-btn-primary { background: linear-gradient(180deg, #1E88E5 0%, #0A64C2 100%); border-color: #074A91; }
+  .win-btn-primary:hover { background: linear-gradient(180deg, #3196EE 0%, #0B6FD6 100%); border-color: #053A73; }
+  .win-btn-success { background: linear-gradient(180deg, #22A559 0%, #15803D 100%); border-color: #0F5F2D; }
+  .win-btn-success:hover { background: linear-gradient(180deg, #2DB866 0%, #168A42 100%); border-color: #0B4A23; }
+  .win-btn-danger { background: linear-gradient(180deg, #E5303F 0%, #B91C2A 100%); border-color: #8A0F1A; }
+  .win-btn-danger:hover { background: linear-gradient(180deg, #EF4452 0%, #CB2030 100%); }
+  .win-btn-warning { background: linear-gradient(180deg, #F59A1B 0%, #D97706 100%); border-color: #A55A04; }
+  .win-btn-warning:hover { background: linear-gradient(180deg, #FBA930 0%, #E58209 100%); }
+  .win-btn-teal { background: linear-gradient(180deg, #14A3A3 0%, #0E7C7C 100%); border-color: #095C5C; }
+  .win-btn-teal:hover { background: linear-gradient(180deg, #18B5B5 0%, #108A8A 100%); }
+  .win-btn-del { background: #FFF; border-color: #DC2626; color: #B91C1C; }
+  .win-btn-del:hover { background: #FEF2F2; border-color: #B91C1C; }
+  .win-btn-sm { font-size: 10.5px; padding: 1px 6px; }
+
+  .win-input { border: 1px solid #ABADB3; border-radius: 2px; padding: 2px 4px; font-size: 11px; background: #FFF; outline: none; }
+  .win-input:focus { border-color: #569DE5; box-shadow: 0 0 2px rgba(86,157,229,.5); }
+  .mono { font-family: Consolas, 'Courier New', monospace; }
+  .bold { font-weight: 700; }
+  .sub { font-size: 10px; color: var(--sub); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  kbd { font-family: Consolas, monospace; font-size: 10px; background: #F1F5F9; border: 1px solid #CBD5E1; border-bottom-width: 2px; border-radius: 3px; padding: 0 3px; color: #334155; }
+
+  input[type=range] { -webkit-appearance: none; background: transparent; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #C8C8C8; border-radius: 2px; border: 1px solid #A0A0A0; }
+  input[type=range]::-webkit-slider-thumb { height: 14px; width: 10px; border-radius: 1px; background: linear-gradient(180deg, #FFF 0%, #CCC 100%);
+      border: 1px solid #666; cursor: pointer; -webkit-appearance: none; margin-top: -6px; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  input[type=range]:disabled::-webkit-slider-thumb { background: #E0E0E0; border-color: #B0B0B0; cursor: not-allowed; }
+
+  .part-bypassed { opacity: .5; background-color: #E6E6E6 !important; }
+  .rx-disabled { pointer-events: none; opacity: .65; }
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: #F0F0F0; border-left: 1px solid #D9D9D9; }
+  ::-webkit-scrollbar-thumb { background: #CDCDCD; border: 2px solid #F0F0F0; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #A6A6A6; }
+
+  /* ---- レイアウト ---- */
+  .titlebar { height: 28px; background: #FFF; border-bottom: 1px solid var(--line); padding: 0 8px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .titlebar .app { font-weight: 600; font-size: 11px; color: #1E293B; display: flex; align-items: center; gap: 6px; }
+  .titlebar .right { display: flex; align-items: center; gap: 10px; font-size: 11px; color: #475569; }
+  .toolbar { background: #E5E5E5; border-bottom: 1px solid var(--line); padding: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+  .tool-box { display: flex; align-items: center; gap: 6px; background: #FFF; padding: 4px 8px; border-radius: 3px; border: 1px solid var(--line); }
+  .mode-btn { min-width: 128px; }
+  .mode-btn.on-rx { background: linear-gradient(180deg, #22A559 0%, #15803D 100%); border-color: #0F5F2D; color: #FFF; }
+  .mode-btn.on-tx { background: linear-gradient(180deg, #1E88E5 0%, #0A64C2 100%); border-color: #074A91; color: #FFF; }
+
+  /* かんたんガイド */
+
+  .workspace { flex: 1; display: flex; min-height: 0; overflow: hidden; padding: 6px; gap: 6px; }
+  .side-l { width: 248px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; min-height: 0; }
+  .side-r { width: 260px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; min-height: 0; }
+  .main-col { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+  .center { flex: 1; min-width: 0; min-height: 0; background: #FFF; border: 1px solid var(--line); border-radius: 2px; padding: 6px; overflow-y: auto; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
+  .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 1200px) { .col2 { grid-template-columns: 1fr; } }
+  .flex-fill { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .lamp { width: 10px; height: 10px; border-radius: 50%; background: #94A3B8; }
+  .lamp.on { background: #10B981; box-shadow: 0 0 4px #10B981; }
+  .lamp.busy { background: #F59E0B; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid rgba(255,255,255,.5); border-top-color: #FFF; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .notice { margin-bottom: 6px; padding: 6px; background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; border-radius: 2px; font-size: 11px; }
+  .notice.estop { background: #FEF2F2; border-color: #FCA5A5; color: #991B1B; }
+  .notice.play { background: #EFF6FF; border-color: #93C5FD; color: #1E40AF; }
+
+  .part-card { padding: 6px; background: #F8FAFC; }
+  .part-head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; margin-bottom: 6px; }
+  .part-head .title { font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 4px; }
+  .part-head .ctl { display: flex; align-items: center; gap: 8px; }
+  .axis-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .axis-row .name { width: 72px; font-weight: 500; color: #334155; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .axis-row input[type=range] { flex: 1; min-width: 60px; }
+  .axis-row .val { width: 58px; text-align: right; font-weight: 700; }
+  .axis-row .val.err { color: #DC2626 !important; border-color: #DC2626; }
+  .axis-row .link { width: 8px; height: 8px; border-radius: 50%; background: #CBD5E1; flex-shrink: 0; }
+  .free-on { background: linear-gradient(180deg, #F59A1B 0%, #D97706 100%) !important; border-color: #A55A04 !important; color: #FFF !important; }
+  .hip-wrap { max-width: 460px; margin: 0 auto 8px; }
+
+  .preset { padding: 5px 6px; border: 1px solid #CBD5E1; background: #FFF; cursor: pointer; border-radius: 2px; display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 5px; }
+  .preset:hover { background: #EFF6FF; border-color: #60A5FA; }
+  .preset .t { font-weight: 700; color: #1E293B; }
+  .preset .btns { display: flex; gap: 3px; flex-shrink: 0; }
+  .lib-sec { font-size: 10px; font-weight: 700; color: #475569; background: #E2E8F0; padding: 1px 4px; border-radius: 2px; margin: 4px 0; }
+
+  .motion-list { flex: 1; border: 1px solid #CBD5E1; background: #FFF; border-radius: 2px; overflow-y: auto; padding: 3px; }
+  .motion-item { padding: 5px 6px; border: 1px solid transparent; border-radius: 2px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #334155; margin-bottom: 2px; }
+  .motion-item:hover { background: #F1F5F9; }
+  .motion-item.sel { background: #DBEAFE; border-color: #60A5FA; font-weight: 700; color: #1E3A8A; }
+  .motion-item .n { font-size: 10px; background: #E2E8F0; color: #475569; padding: 0 4px; border-radius: 2px; }
+  .motion-item .nm { min-width: 0; display: flex; flex-direction: column; }
+  .motion-item .nm .c { font-family: Consolas, "Courier New", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .motion-item .nm .d { font-size: 10px; color: #64748B; font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .motion-item .bad { color: #DC2626; font-size: 10px; font-weight: 700; }
+  .file-sec { border: 1px solid #E2E8F0; border-radius: 3px; padding: 4px 6px 6px; margin-top: 6px; background: #FAFAFA; }
+  .file-h { white-space: nowrap; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .file-h .sub { font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+  .part-chk { display: flex; align-items: center; gap: 3px; cursor: pointer; font-size: 11px; font-weight: 700; color: #334155; }
+  .part-chk input { margin: 0; cursor: pointer; }
+  .win-btn-primary .sub { color: #DBEAFE; }
+  .name-err { color: #DC2626; font-size: 11px; min-height: 14px; }
+  .empty-hint { color: #94A3B8; text-align: center; padding: 14px 6px; font-size: 11px; line-height: 1.6; }
+
+  .ik-box { border: 1px solid #E2E8F0; border-radius: 2px; padding: 5px; background: #FAFCFF; }
+  .ik-row { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+  .ik-row .l { width: 74px; font-size: 10px; color: #475569; }
+  .ik-row input[type=range] { flex: 1; }
+  .ik-row input[type=text] { width: 52px; text-align: right; }
+  .cmp { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .cmp th, .cmp td { border-bottom: 1px solid #EEE; padding: 1px 4px; text-align: right; }
+  .cmp th:first-child, .cmp td:first-child { text-align: left; }
+  .calib-scroll { max-height: 380px; overflow-y: auto; border: 1px solid #EEE; }
+  .calib-table th { position: sticky; top: 0; background: #F8FAFC; }
+  .calib-table td:nth-child(2) { text-align: left; }
+  .calib-table input[type=number] { width: 72px; text-align: right; }
+
+  /* ---- タイムライン ---- */
+  .timeline { height: 330px; background: #FFF; border: 1px solid var(--line); border-radius: 2px; display: flex; flex-direction: column; flex-shrink: 0; }
+  .tl-bar { min-height: 32px; background: #E5E5E5; border-bottom: 1px solid var(--line); padding: 3px 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .tl-bar .grp { display: flex; align-items: center; gap: 5px; }
+  .tl-bar .sep { width: 1px; height: 18px; background: #BDBDBD; margin: 0 3px; }
+  .tl-scroll { flex: 1; overflow: auto; position: relative; }
+  .tl-ruler, .tl-track { display: flex; min-width: max-content; }
+  .tl-ruler { height: 20px; background: #F1F5F9; border-bottom: 1px solid #CBD5E1; position: sticky; top: 0; z-index: 20; font-size: 10px; color: #475569; }
+  .tl-label { width: 150px; border-right: 1px solid #CBD5E1; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px; font-weight: 600; color: #334155; background: #FFF; position: sticky; left: 0; z-index: 10; }
+  .tl-ruler .tl-label { background: #E2E8F0; font-weight: 700; color: #1E293B; }
+  .tl-lane { position: relative; flex: 1; height: 100%; }
+  .tl-track { height: 32px; border-bottom: 1px solid #E2E8F0; }
+  .tl-track.disabled .tl-lane { opacity: .45; }
+  .tl-block { position: absolute; top: 5px; height: 22px; border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: 700; color: #FFF;
+      overflow: hidden; white-space: nowrap; cursor: grab; border: 1px solid rgba(0,0,0,.25); box-shadow: 0 1px 1px rgba(0,0,0,.12); }
+  .tl-block:active { cursor: grabbing; }
+  .tl-block.gap { background: repeating-linear-gradient(135deg, #F1F5F9 0 6px, #E2E8F0 6px 12px) !important; color: #475569; border: 1px dashed #94A3B8; text-shadow: none; }
+  .tl-block.sel { outline: 2px solid #111; outline-offset: 0; z-index: 5; }
+  .tl-block .h { position: absolute; top: 0; bottom: 0; width: 6px; cursor: ew-resize; background: rgba(255,255,255,.0); }
+  .tl-block .h.l { left: 0; } .tl-block .h.r { right: 0; }
+  .tl-block.sel .h { background: rgba(255,255,255,.55); }
+  .tl-block.gap.sel .h { background: rgba(71,85,105,.35); }
+  .tl-tick { position: absolute; top: 3px; transform: translateX(-50%); }
+  .tl-tick::before { content: ""; position: absolute; left: 50%; top: 13px; height: 4px; border-left: 1px solid #94A3B8; }
+  #tl-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #DC2626; z-index: 30; pointer-events: none; display: none; }
+  .tl-scrubrow { display: flex; min-width: max-content; height: 22px; background: #EEF4FB; border-bottom: 1px solid #94A3B8; position: sticky; top: 0; z-index: 22; }
+  .tl-scrubrow .tl-label { background: #DBEAFE; color: #1E3A8A; font-weight: 700; font-size: 10px; }
+  .tl-scrub { position: relative; height: 100%; cursor: ew-resize; }
+  #tl-scrub-thumb { position: absolute; top: 2px; bottom: 2px; width: 12px; margin-left: -6px; background: #2563EB; border-radius: 3px; pointer-events: none; }
+  .tl-ruler { top: 22px !important; }
+  #tl-cursor { position: absolute; top: 0; bottom: 0; width: 2px; background: #2563EB; z-index: 29; pointer-events: none; }
+  #tl-cursor::before { content: ''; position: absolute; top: 0; left: -5px; width: 12px; height: 12px; background: #2563EB; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  #tl-drag-tip { position: fixed; z-index: 200; background: #111827; color: #FFF; font-size: 11px; padding: 2px 6px; border-radius: 3px; pointer-events: none; display: none; }
+
+  /* ---- ダイアログ・ログ ---- */
+  .fwin { position: fixed; display: none; z-index: 50; background: var(--panel); border: 1px solid var(--line2); border-radius: 4px; box-shadow: 0 6px 20px rgba(0,0,0,.28); max-width: 96vw; }
+  .fwin.open { display: block; }
+  .fwin-title { display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 10px; background: linear-gradient(180deg, #F5F5F5 0%, #DCDCDC 100%); border-bottom: 1px solid var(--line2); cursor: move; user-select: none; font-weight: 700; border-radius: 4px 4px 0 0; }
+  .fwin-title .sp { flex: 1; }
+  .fwin-x { border: 1px solid transparent; background: transparent; width: 22px; height: 20px; line-height: 16px; font-size: 14px; cursor: pointer; border-radius: 3px; color: #475569; }
+  .fwin-x:hover { background: #E81123; color: #fff; }
+  .fwin-body { padding: 8px; max-height: 72vh; overflow: auto; }
+  [data-win].on { background: #0A64C2; color: #fff; border-color: #084E98; }
+  dialog { border: 1px solid var(--line); border-radius: 4px; padding: 0; box-shadow: 0 8px 24px rgba(0,0,0,.3); width: 440px; max-width: 94vw; margin: auto; }
+  dialog::backdrop { background: rgba(0,0,0,.25); }
+  .dlg-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .dlg-row { display: flex; align-items: center; gap: 6px; }
+  .dlg-row > span:first-child { width: 60px; color: #475569; }
+  .dlg-actions { display: flex; justify-content: space-between; gap: 6px; padding: 8px 10px; border-top: 1px solid #E2E8F0; background: #F8FAFC; }
+  .vals { max-height: 140px; overflow-y: auto; border: 1px solid #E2E8F0; border-radius: 2px; padding: 4px; font-size: 11px; background: #FAFAFA; }
+  #log-panel { position: fixed; right: 8px; bottom: 244px; width: 460px; height: 260px; background: #1E1E1E; border: 1px solid #444; border-radius: 3px;
+      display: none; flex-direction: column; z-index: 100; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+  #log-panel .h { color: #DDD; font-size: 11px; padding: 4px 8px; display: flex; justify-content: space-between; background: #2D2D2D; }
+  #log-text { flex: 1; background: #1E1E1E; color: #00FF66; font-family: Consolas, monospace; font-size: 11px; border: none; padding: 6px; resize: none; outline: none; }
+</style>
+</head>
+<body>
+
+  <!-- ================= 1. タイトルバー ================= -->
+  <div class="titlebar">
+    <div class="app"><span class="dot" style="background:#0A64C2"></span>19-Axis Robot Motion Studio</div>
+    <div class="right">
+      <span>ステータス: <strong id="sys-status" style="color:#047857">準備完了</strong></span>
+      <span>|</span>
+      <span title="サーボ通信の診断（マイコンから1秒ごと）">サーボ通信: <strong id="link-summary">---</strong></span>
+      <button class="win-btn win-btn-sm" id="btn-log">ログ</button>
+    </div>
+  </div>
+
+  <!-- ================= 2. ツールバー ================= -->
+  <div class="toolbar">
+    <div class="tool-box">
+      <div id="ble-lamp" class="lamp"></div>
+      <span class="bold" style="color:#334155">ターゲット名:</span>
+      <input type="text" id="txt-ble-target" value="ESP32_Robot" class="win-input mono" style="width:112px">
+      <button id="btn-ble" class="win-btn win-btn-success" title="ロボットを探して接続します"><span id="txt-ble-btn">接続</span></button>
+      <span id="ble-state" class="mono sub">未接続</span>
+    </div>
+
+    <div class="tool-box">
+      <span class="bold" style="color:#475569">通信モード:</span>
+      <button id="btn-mode-rx" class="win-btn mode-btn" disabled title="ロボットの状態を見るだけ（安全）">読取りモード (RX)</button>
+      <button id="btn-mode-tx" class="win-btn mode-btn" disabled title="PCの操作がロボットに反映されます">同期モード (TX)</button>
+    </div>
+
+    <div class="tool-box">
+      <span class="bold" style="color:#475569">詳細:</span>
+      <button class="win-btn" data-win="win-calib" title="サーボの0°位置・左右差補正（RAM上で調整。残すときはエクスポート）">校正…</button>
+      <button class="win-btn" data-win="win-compare" title="左右の脚の角度を並べて比べます">左右比較…</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:6px;">
+      <button id="btn-all-free" class="win-btn win-btn-warning" style="padding:4px 12px" title="全サーボの力を抜きます（手で動かして姿勢を作れます）">全軸FREE (脱力)</button>
+      <button id="btn-estop" class="win-btn win-btn-danger" style="padding:4px 14px" title="再生を中断し全軸を脱力します">緊急停止 (E-STOP)</button>
+      <button id="btn-estop-clear" class="win-btn win-btn-teal" style="padding:4px 10px; display:none">緊急停止を解除</button>
+    </div>
+  </div>
+
+  <!-- かんたんガイド -->
+  <!-- ================= 3. メイン ================= -->
+  <div class="workspace">
+
+    <!-- 左: 部位選択 / ポーズライブラリ / 校正 -->
+    <div class="side-l">
+      <div class="win-groupbox">
+        <div class="win-groupbox-header"><span>操作する部位</span><span class="sub" style="font-weight:400" title="選んでいない部位は動かさず、キャプチャもしません">Ctrl+クリックで複数</span></div>
+        <div class="gb-body grid2">
+          <button class="win-btn part-sel" data-part="all" style="grid-column: span 2; text-align:left; display:flex; justify-content:space-between;" title="全部位を対象にします"><span>全身</span><span class="sub">19軸</span></button>
+          <button class="win-btn part-sel" data-part="r_arm" style="text-align:left" title="クリック: この部位だけ / Ctrl+クリック: 追加・解除">右腕 <span class="sub">4軸</span></button>
+          <button class="win-btn part-sel" data-part="l_arm" style="text-align:left" title="クリック: この部位だけ / Ctrl+クリック: 追加・解除">左腕 <span class="sub">4軸</span></button>
+          <button class="win-btn part-sel" data-part="r_leg" style="text-align:left" title="クリック: この部位だけ / Ctrl+クリック: 追加・解除">右脚 <span class="sub">5軸</span></button>
+          <button class="win-btn part-sel" data-part="l_leg" style="text-align:left" title="クリック: この部位だけ / Ctrl+クリック: 追加・解除">左脚 <span class="sub">5軸</span></button>
+          <button class="win-btn part-sel" data-part="hip" style="text-align:left; grid-column: span 2" title="クリック: この部位だけ / Ctrl+クリック: 追加・解除">腰 <span class="sub">1軸</span></button>
+        </div>
+      </div>
+
+      <div class="win-groupbox flex-fill">
+        <div class="win-groupbox-header"><span>ポーズライブラリ</span><span class="sub" style="font-weight:400" title="pose_library.json に自動保存">自動保存</span></div>
+        <div class="gb-body" style="flex:1; overflow-y:auto;" id="pose-lib"></div>
+        <div class="gb-body" style="border-top:1px solid #E2E8F0; padding-top:4px;">
+          <div class="grid2">
+            <button class="win-btn win-btn-success" id="btn-pose-add" title="有効な部位の今の角度をポーズとして登録">＋ 現在姿勢を登録</button>
+            <button class="win-btn" id="btn-pose-reset" title="プリセットを初期状態に戻します（登録ポーズは残ります）">プリセットを既定に</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 中央: サーボ操作 -->
+    <div class="main-col">
+    <div class="center">
+      <div id="mode-notice" class="notice"></div>
+
+      <div id="servo-container" class="rx-disabled">
+        <div class="hip-wrap" id="slot-hip"></div>
+        <div class="col2" style="margin-bottom:8px;">
+          <div id="slot-r_arm"></div>
+          <div id="slot-l_arm"></div>
+        </div>
+        <div class="col2" style="margin-bottom:8px;">
+          <div id="slot-r_leg"></div>
+          <div id="slot-l_leg"></div>
+        </div>
+        <div class="sub" style="margin:-2px 0 8px; text-align:right">スライダー上でホイール: ±0.5°（<kbd>Shift</kbd>+ホイール: ±5°）／数値欄に直接入力もできます</div>
+
+        <!-- 脚の座標指定（IK はマイコンで計算） -->
+        <div class="win-groupbox">
+          <div class="win-groupbox-header"><span>脚の座標指定（IK・マイコン計算）</span><span class="sub" style="font-weight:400">最初に「ニュートラル取得」</span></div>
+          <div class="gb-body">
+            <div class="col2" id="ik-panel"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  <!-- ================= 4. マルチトラック・タイムライン ================= -->
+  <div class="timeline">
+    <div class="tl-bar">
+      <div class="grp">
+        <button class="win-btn win-btn-success" id="btn-capture" title="有効な部位の今の姿勢を、青い縦線（挿入位置）の時刻にキーフレームとして挿入します">● 現在姿勢のキャプチャ</button>
+        <span class="sub">長さ</span><input type="number" id="num-capture-ms" class="win-input mono" value="500" min="20" style="width:56px; text-align:right"><span class="sub">ms</span>
+        <label class="sub" style="display:flex; align-items:center; gap:3px;"><input type="checkbox" id="chk-capture-same">変化なしも記録</label>
+        <span class="sub mono" id="txt-cursor" style="color:#1D4ED8; font-weight:600" title="キャプチャはこの位置（青い縦線）に挿入されます。ルーラーをドラッグ、またはクリックで移動">挿入位置 0ms</span>
+        <span class="sep"></span>
+        <button class="win-btn" id="btn-gap" title="選択ブロックの後ろ（未選択なら有効な部位の末尾）に空白＝その姿勢で待つ時間を追加">＋ 空白</button>
+        <button class="win-btn" id="btn-undo" title="元に戻す（Ctrl+Z）">↶ 元に戻す</button>
+        <button class="win-btn" id="btn-redo" title="やり直す（Ctrl+Y）">↷ やり直す</button>
+      </div>
+      <div class="grp">
+        <span class="sub" id="txt-grid" title="グリッドの最小単位はマイコンの制御周期(FPS)">グリッド 25ms (40fps)</span>
+        <select id="sel-snap" class="win-input" title="ドラッグ時に合わせる単位">
+          <option value="1">1コマ</option><option value="2">2コマ</option><option value="4">4コマ</option><option value="10">10コマ</option>
+        </select>
+        <span class="sub">倍率</span>
+        <input type="range" id="tl-zoom" min="0.05" max="0.8" step="0.01" value="0.2" style="width:80px">
+        <button class="win-btn win-btn-del" id="btn-tl-clear">一括消去</button>
+      </div>
+    </div>
+    <div class="tl-scroll" id="tl-scroll">
+      <div class="tl-scrubrow"><div class="tl-label">挿入位置バー</div><div class="tl-lane tl-scrub" id="tl-scrub" title="ドラッグで挿入位置（青い線）を動かす"><div id="tl-scrub-thumb"></div></div></div>
+      <div class="tl-ruler"><div class="tl-label">部位トラック (5)</div><div class="tl-lane" id="tl-ruler-lane" title="クリック／ドラッグで挿入位置を動かす"></div></div>
+      <div id="tl-tracks"></div>
+      <div id="tl-playhead"></div>
+      <div id="tl-cursor" title="挿入位置"></div>
+    </div>
+    <div class="sub" style="padding:2px 8px; border-top:1px solid #E2E8F0; background:#FAFAFA">
+      操作: ブロックを<b>ドラッグ</b>=開始位置を移動（前に空白ができます） ／ <b>右端</b>ドラッグ=長さ ／ <b>左端</b>ドラッグ=開始を詰める ／ 空き部分を<b>ダブルクリック</b>=そこまで空白 ／
+      <kbd>Delete</kbd> 削除 ／ <kbd>Ctrl</kbd>+<kbd>Z</kbd> 元に戻す ／ <kbd>Space</kbd> リアルタイム再生 ／ <kbd>←</kbd><kbd>→</kbd> 挿入位置を1コマ移動
+    </div>
+  </div>
+    </div>
+
+    <!-- 右: モーション管理 -->
+    <div class="side-r">
+      <div class="win-groupbox flex-fill">
+        <div class="win-groupbox-header"><span>モーション一覧 <span id="txt-dirty" style="color:#DC2626; font-weight:700"></span></span><span class="sub" id="txt-motion-count" style="font-weight:400">0 件</span></div>
+        <div class="gb-body flex-fill" style="padding-bottom:0">
+          <div class="motion-list" id="motion-list"></div>
+        </div>
+        <div class="gb-body">
+          <div class="grid2" style="margin-bottom:4px;">
+            <button class="win-btn win-btn-success" id="btn-motion-new">＋ 新規</button>
+            <button class="win-btn" id="btn-motion-rename" title="モーション名（C++名）と説明文を編集（ダブルクリックでも可）">名前・説明</button>
+            <button class="win-btn" id="btn-motion-dup" title="選択中のモーションを複製">複製</button>
+            <button class="win-btn win-btn-del" id="btn-motion-delete">削除</button>
+          </div>
+          <div class="file-sec">
+            <div class="file-h"><span>アプリデータ (.json)</span><span class="sub">編集の続きに使う</span></div>
+            <div class="grid2">
+              <button class="win-btn win-btn-primary" id="btn-file-save" title="全モーションを JSON に保存（Ctrl+S）。あとで読み込んで編集を続けられます">保存</button>
+              <button class="win-btn" id="btn-file-load" title="保存した JSON を開きます">読込</button>
+            </div>
+            <button class="win-btn" id="btn-file-merge" style="width:100%; margin-top:4px" title="別の JSON を読み込み、今開いているモーションに1件ずつ追加します。同名で内容が違うものだけ確認します">統合（別の JSON を追加）</button>
+          </div>
+          <div class="file-sec">
+            <div class="file-h"><span>ファーム用 (.h)</span><span class="sub">組み込み用・読込不可</span></div>
+            <button class="win-btn win-btn-teal" id="btn-export" style="width:100%" title="全モーションを ExportData.h に書き出します（ビルドして書き込むとマイコンに組み込まれます）">エクスポート (ExportData.h)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="win-groupbox">
+        <div class="win-groupbox-header"><span>再生</span><span class="sub" id="txt-motion-len" style="font-weight:400"></span></div>
+        <div class="gb-body">
+          <div class="grid2" style="margin-bottom:4px;">
+            <button class="win-btn win-btn-primary" id="btn-preview" title="PCからロボットへ1コマずつ送って再生（同期モード TX が必要）。通信が遅いとゆっくり再生になりますが、全コマを順番どおり実行します（Space）">▶ リアルタイム再生</button>
+            <button class="win-btn" id="btn-preview-stop" title="リアルタイム再生を止めます（Space）">■ 停止</button>
+          </div>
+          <button class="win-btn win-btn-teal" id="btn-play-mcu" style="width:100%" title="モーション全体をマイコンのRAMに書き込み、マイコン単独で再生（PCとの通信がなくても動きます）。電源を切ると消えます。前回と同じ内容なら書き込みを省略します">⇩ マイコンに書き込んで再生</button>
+          <progress id="prog-mcu" max="100" value="0" style="width:100%; height:8px; display:none; margin-top:3px"></progress>
+          <div class="sub" id="txt-run-status" style="margin:3px 0 4px; min-height:14px">マイコン書き込み: 電源を切ると消えます ／ 変更がなければ書き込みを省略</div>
+        </div>
+      </div>
+
+      <div class="win-groupbox">
+        <div class="win-groupbox-header"><span>選択中ブロック</span><span class="bold" style="color:#1D4ED8" id="lbl-frame">---</span></div>
+        <div class="gb-body">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px;">
+            <span>長さ: <input type="number" id="num-frame-time" value="500" min="20" max="65535" class="win-input mono" style="width:62px; text-align:right"> ms</span>
+            <span>補間: <select id="sel-frame-mode" class="win-input"><option value="0">なめらか</option><option value="1">イチギメ</option></select></span>
+          </div>
+          <div class="grid3">
+            <button class="win-btn" id="btn-frame-apply" title="このキーフレームの姿勢をスライダーへ（ダブルクリックでも可）">姿勢を反映</button>
+            <button class="win-btn" id="btn-frame-update" title="今のスライダーの値でこのキーフレームを上書き">上書き</button>
+            <button class="win-btn win-btn-del" id="btn-frame-delete" title="削除（Delete）">削除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tl-drag-tip"></div>
+
+  <!-- ポーズ編集ダイアログ -->
+
+  <!-- ================= 詳細ウィンドウ（ツールバーの「詳細」から開く） ================= -->
+  <!-- 校正ウィンドウ: 構成データの読み書きは、ここ以外には出さない -->
+  <div class="fwin" id="win-calib" style="left:290px; top:150px; width:400px">
+    <div class="fwin-title"><span>校正（機体ごと）</span><span class="sub" id="txt-calib-state" title="マイコンの今の値が、書き込み済みのCalibData.h と同じかどうか">未取得</span><span class="sp"></span><button class="fwin-x" data-close title="閉じる">×</button></div>
+    <div class="fwin-body">
+          <div style="display:flex; gap:4px; margin-bottom:6px;">
+            <button class="win-btn" id="btn-calib-read" style="flex:1" title="CalibData.h を読み込みます（接続中ならロボットへ送ります）">読み込み</button>
+            <button class="win-btn win-btn-teal" id="btn-calib-write" style="flex:1" title="一覧の校正値を CalibData.h に書き出します（ビルドして書き込むと反映）">書き込み</button>
+            <button class="win-btn" id="btn-calib-pose" style="flex:1" title="全軸を今の姿勢で中立(7500)にします（ロボットは動きません）">現在姿勢でオフセット</button>
+          </div>
+          <div class="sub" style="margin-bottom:6px; line-height:1.5">数値は直接打ち込めます（Enterで反映、Escで戻す）。ここでの変更はマイコンのRAMだけに反映されます（電源を切ると戻ります）。残すには「書き込み」→ ビルド → 書き込み。</div>
+          <div class="calib-scroll">
+            <table class="cmp calib-table">
+              <thead><tr><th>軸</th><th>部位</th><th>オフセット（生ICS）</th><th>中立との差</th></tr></thead>
+              <tbody id="calib-list"></tbody>
+            </table>
+          </div>
+    </div>
+  </div>
+
+  <div class="fwin" id="win-compare" style="left:290px; top:420px; width:340px">
+    <div class="fwin-title"><span>左右の脚の比較（0°基準）</span><span class="sp"></span><button class="fwin-x" data-close title="閉じる">×</button></div>
+    <div class="fwin-body">
+      <table class="cmp"><thead><tr><th>0°基準</th><th>右脚</th><th>左脚</th><th>|右|-|左|</th></tr></thead><tbody id="leg-compare"></tbody></table>
+      <div class="sub" style="margin-top:4px; line-height:1.4">同じ座標で |右|-|左| が0でない軸は、IK以外（取付・リンク・荷重）の差です。2°を超えると赤で表示します。</div>
+    </div>
+  </div>
+
+  <dialog id="dlg-motion">
+    <div class="win-groupbox-header"><span id="dlg-motion-title">モーション</span></div>
+    <div class="dlg-body">
+      <div>
+        <div class="bold" style="margin-bottom:2px">モーション名（英語）</div>
+        <input type="text" id="dlg-motion-name" class="win-input mono" style="width:100%" spellcheck="false" autocomplete="off">
+        <div class="sub" style="margin-top:2px">ファームでそのまま C++ の名前になります（例: <span class="mono">Attack_left_flont</span>）。英字・数字・_ のみ、先頭は英字。</div>
+        <div class="name-err" id="dlg-motion-err"></div>
+      </div>
+      <div>
+        <div class="bold" style="margin-bottom:2px">説明文（日本語でも可）</div>
+        <textarea id="dlg-motion-desc" class="win-input" rows="3" style="width:100%; resize:vertical" placeholder="例: 左攻撃モーション"></textarea>
+        <div class="sub">エクスポートしたファイルにコメントとして入ります。</div>
+      </div>
+    </div>
+    <div class="dlg-actions">
+      <span></span>
+      <span style="display:flex; gap:6px;">
+        <button class="win-btn" id="dlg-motion-cancel">キャンセル</button>
+        <button class="win-btn win-btn-success" id="dlg-motion-ok">OK</button>
+      </span>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-merge">
+    <div class="win-groupbox-header"><span>同じ名前のモーションがあります</span></div>
+    <div class="dlg-body">
+      <div>名前「<span class="mono bold" id="dlg-merge-name"></span>」は、今開いているモーションと中身が違います。</div>
+      <table class="cmp">
+        <thead><tr><th></th><th>今のモーション</th><th>取り込み</th></tr></thead>
+        <tbody>
+          <tr><td>合計時間</td><td class="mono" id="dlg-merge-len-ex"></td><td class="mono" id="dlg-merge-len-in"></td></tr>
+          <tr><td>説明文</td><td id="dlg-merge-desc-ex"></td><td id="dlg-merge-desc-in"></td></tr>
+        </tbody>
+      </table>
+      <div class="sub">違う部位: <span id="dlg-merge-parts"></span></div>
+      <label class="sub" style="display:flex; align-items:center; gap:6px"><input type="checkbox" id="dlg-merge-all"> 残りの「違う」モーションにも同じ操作を使う</label>
+    </div>
+    <div class="dlg-actions">
+      <button class="win-btn" id="dlg-merge-cancel" title="統合をやめます。何も変わりません">中止</button>
+      <span style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end">
+        <button class="win-btn" id="dlg-merge-keep" title="今のモーションをそのまま残し、取り込み分は追加しません">今のものを残す</button>
+        <button class="win-btn" id="dlg-merge-rename" title="取り込み分を別の名前で追加し、両方残します">別名で両方残す（<span id="dlg-merge-newname"></span>）</button>
+        <button class="win-btn win-btn-success" id="dlg-merge-replace" title="今のモーションを取り込み分で置き換えます">取り込みで置き換える</button>
+      </span>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-pose">
+    <div class="win-groupbox-header"><span id="dlg-pose-title">ポーズを編集</span><span class="sub" style="font-weight:400">pose_library.json に保存</span></div>
+    <div class="dlg-body">
+      <div class="dlg-row"><span>名前</span><input type="text" id="dlg-pose-name" class="win-input" style="flex:1"></div>
+      <div class="dlg-row"><span>説明</span><input type="text" id="dlg-pose-desc" class="win-input" style="flex:1"></div>
+      <div class="dlg-row"><span>分類</span><select id="dlg-pose-section" class="win-input" style="flex:1">
+        <option value="基本姿勢 プリセット">基本姿勢 プリセット</option><option value="部位サブ プリセット">部位サブ プリセット</option><option value="登録ポーズ">登録ポーズ</option></select></div>
+      <div class="dlg-row"><span>対象部位</span><span id="dlg-pose-parts" style="display:flex; gap:8px; flex-wrap:wrap"></span></div>
+      <div>
+        <div class="sub" style="margin-bottom:2px">このポーズの角度（チェックした部位だけ適用されます）</div>
+        <div class="vals mono" id="dlg-pose-vals"></div>
+      </div>
+      <button class="win-btn win-btn-primary" id="dlg-pose-capture" title="チェックした部位について、今のスライダーの角度を取り込みます">今の姿勢で角度を上書き</button>
+    </div>
+    <div class="dlg-actions">
+      <button class="win-btn win-btn-del" id="dlg-pose-delete">このポーズを削除</button>
+      <span style="display:flex; gap:6px;">
+        <button class="win-btn" id="dlg-pose-cancel">キャンセル</button>
+        <button class="win-btn win-btn-success" id="dlg-pose-ok">保存</button>
+      </span>
+    </div>
+  </dialog>
+
+  <div id="log-panel">
+    <div class="h"><span>ログ</span><span><button class="win-btn win-btn-sm" id="btn-log-folder" title="設定ファイルとログファイル（robot_motion_studio.log）の保存先を開きます">ログの場所を開く</button> <button class="win-btn win-btn-sm" id="btn-log-clear">消去</button> <button class="win-btn win-btn-sm" id="btn-log-close">閉じる</button></span></div>
+    <textarea id="log-text" readonly></textarea>
+  </div>
+
+<script>
+// ======================================================================
+// PCアプリ(Python)との橋渡し（旧 pywebview の js_api の代わり）
+//  - window.pywebview.api.<名前>(...引数) → POST /api/<名前> {"args":[...]} → 戻り値（JSON）
+//    失敗時は旧版と同じ見え方（"ValueError: ..."）のエラーを投げる。
+//  - ファイルの保存・読込（save_text_file / load_text_file / export_header）は、ここでブラウザの
+//    ファイル保存機能（File System Access API）を使って行う。戻り値の形は旧版と同じ。
+//  - 生存通知（/api/_alive）でPCアプリに「画面が開いている」ことを伝える（ロボットの heartbeat とは別）。
+// ======================================================================
+(() => {
+  const P = new URLSearchParams(location.search);
+  const TOKEN = P.get("t") || "";
+  const HDR = { "Content-Type": "application/json", "X-Token": TOKEN };
+  const qs = `?t=${encodeURIComponent(TOKEN)}`;
+  let downCount = 0;
+
+  function apiError(text) {
+    const e = new Error(text);
+    e.toString = () => text;                 // `${e}` が旧版と同じ "ValueError: ..." になるように
+    return e;
+  }
+  async function rpc(name, args) {
+    let r;
+    try {
+      r = await fetch(`/api/${name}`, { method: "POST", headers: HDR, body: JSON.stringify({ args }), cache: "no-store" });
+    } catch (e) {
+      if (++downCount >= 5) showDown();
+      throw apiError("PCアプリに接続できません（終了した可能性があります）");
+    }
+    downCount = 0;
+    let d = null;
+    try { d = await r.json(); } catch (e) {}
+    if (!r.ok) throw apiError(d && d.error ? d.error : `HTTP ${r.status}`);
+    return d ? d.result : null;
+  }
+  const note = m => { try { window.logMsg && logMsg(m); } catch (e) {} };
+
+  // ---- 画面の案内（PCアプリ終了・クリックが必要なとき） ----
+  function overlay(html, buttons) {
+    const o = document.createElement("div");
+    o.style.cssText = "position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    const b = document.createElement("div");
+    b.style.cssText = "background:#fff;border-radius:6px;padding:18px 20px;max-width:460px;font-size:13px;line-height:1.6;box-shadow:0 10px 30px rgba(0,0,0,.3);";
+    b.innerHTML = html + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"></div>';
+    const row = b.lastElementChild;
+    buttons.forEach(([label, cls, fn]) => {
+      const x = document.createElement("button");
+      x.className = "win-btn " + (cls || ""); x.textContent = label;
+      x.onclick = () => { o.remove(); fn && fn(); };
+      row.appendChild(x);
+    });
+    o.appendChild(b); document.body.appendChild(o);
+    return o;
+  }
+  window.appOverlay = overlay;   // 画面の他の場所（書き出しの確認など）からも使う
+  let downShown = false;
+  function showDown() {
+    if (downShown || !document.body) return;
+    downShown = true;
+    overlay("<b>PCアプリとの接続が切れました。</b><br>アプリが終了した可能性があります。このウィンドウを閉じて、アプリを起動し直してください。", [["閉じる", "", () => { downShown = false; }]]);
+  }
+  // ファイル選択画面はクリック直後にしか開けない。間に確認ダイアログなどがあって開けなかったときは、もう一度押してもらう。
+  async function withGesture(fn, label) {
+    try { return await fn(); }
+    catch (e) {
+      if (!e || (e.name !== "SecurityError" && e.name !== "NotAllowedError")) throw e;
+      return await new Promise((res, rej) => overlay(`<b>${label}</b><br>下のボタンを押してください。`, [
+        ["キャンセル", "", () => rej(new DOMException("キャンセル", "AbortError"))],
+        [label, "win-btn-primary", async () => { try { res(await fn()); } catch (e2) { rej(e2); } }],
+      ]));
+    }
+  }
+
+  // ---- 前回の保存先を覚える（ファイルの場所を IndexedDB に保存） ----
+  function idb() {
+    return new Promise((res, rej) => {
+      const q = indexedDB.open("RobotMotionStudio", 1);
+      q.onupgradeneeded = () => q.result.createObjectStore("handles");
+      q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    });
+  }
+  async function idbGet(k) {
+    try { const db = await idb(); return await new Promise(r => { const q = db.transaction("handles").objectStore("handles").get(k); q.onsuccess = () => r(q.result || null); q.onerror = () => r(null); }); }
+    catch (e) { return null; }
+  }
+  async function idbSet(k, v) {
+    try { const db = await idb(); db.transaction("handles", "readwrite").objectStore("handles").put(v, k); } catch (e) {}
+  }
+  // 前回の場所から開く。前回の場所が使えなければ、場所の指定なしでもう一度。
+  async function pick(picker, opts, key) {
+    const last = await idbGet(key);
+    if (last) {
+      try { return await picker({ ...opts, startIn: last }); }
+      catch (e) { if (e.name !== "TypeError" && e.name !== "NotFoundError") throw e; }
+    }
+    return await picker(opts);
+  }
+  async function writeText(h, text) {
+    const w = await h.createWritable();      // 書き込みは一時ファイルに行い、close() で置き換わる
+    await w.write(text);
+    await w.close();
+  }
+  const canPick = () => typeof window.showSaveFilePicker === "function" && typeof window.showOpenFilePicker === "function";
+  let warnedFallback = false;
+  function fallbackNotice() {
+    if (warnedFallback) return;
+    warnedFallback = true;
+    note("[FILE] このブラウザはファイルの保存先を選べないため、保存は「ダウンロード」フォルダへの保存、読込はファイル選択で行います。Edge か Chrome で使うと、旧版と同じように保存先を選べます。");
+  }
+  function download(name, text) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+  function chooseFile(accept) {
+    return new Promise(res => {
+      const i = document.createElement("input");
+      i.type = "file"; i.accept = accept; i.style.display = "none";
+      i.onchange = async () => { const f = i.files && i.files[0]; i.remove(); res(f ? { fileName: f.name, text: await f.text() } : null); };
+      i.addEventListener("cancel", () => { i.remove(); res(null); });
+      document.body.appendChild(i); i.click();
+    });
+  }
+  const JSON_TYPES = [{ description: "モーション (JSON)", accept: { "application/json": [".json"] } }];
+  const H_TYPES = [{ description: "C/C++ ヘッダ", accept: { "text/plain": [".h"] } }];
+
+  // 旧 save_text_file(default_name, content) → 保存したファイル名（キャンセルは null）
+  async function save_text_file(defaultName, content) {
+    if (!canPick()) { fallbackNotice(); download(defaultName, content); return `${defaultName}（ダウンロードフォルダ）`; }
+    let h;
+    try { h = await withGesture(() => pick(window.showSaveFilePicker, { suggestedName: defaultName, types: JSON_TYPES }, "motions"), "保存先を選ぶ"); }
+    catch (e) { if (e.name === "AbortError") return null; throw apiError(`${e.name}: ${e.message}`); }
+    await writeText(h, content);
+    idbSet("motions", h);
+    return h.name;
+  }
+  // 旧 load_text_file() → {fileName, text}（キャンセルは null）
+  async function load_text_file() {
+    if (!canPick()) { fallbackNotice(); return await chooseFile(".json,application/json"); }
+    let hs;
+    try { hs = await withGesture(() => pick(window.showOpenFilePicker, { types: JSON_TYPES, multiple: false }, "motions"), "ファイルを選ぶ"); }
+    catch (e) { if (e.name === "AbortError") return null; throw apiError(`${e.name}: ${e.message}`); }
+    const h = hs[0];
+    const text = await (await h.getFile()).text();
+    idbSet("motions", h);
+    return { fileName: h.name, text };
+  }
+  // 書き出し（ExportData.h = モーション / CalibData.h = 校正値）の共通処理。
+  //  rpcName: 生成するPython側の関数, key: 保存先を覚えておく場所（IndexedDB）
+  //  戻り値: {ok, path, result, text}（キャンセルは {ok:false, cancel:true}）
+  async function exportFile(rpcName, payload, fileName, key, label) {
+    const logDone = (name, r) => note(`[EXPORT] ${name} を${r.result === "written" ? "書き出しました" : "確認しました（変更なし）"}` +
+      `${label}` + (r.bakPath ? ` / 元の内容: ${r.bakPath}` : ""));
+    if (!canPick()) {
+      fallbackNotice();
+      const r = await rpc(rpcName, [payload, null, fileName]);
+      if (!r.ok) return r;
+      if (r.result === "written") download(fileName, r.content);
+      logDone(`${fileName}（ダウンロードフォルダ）`, r);
+      return { ok: true, path: fileName, result: r.result, text: "OK" };
+    }
+    let h;
+    try { h = await withGesture(() => pick(window.showSaveFilePicker, { suggestedName: fileName, types: H_TYPES }, key), "保存先を選ぶ"); }
+    catch (e) { if (e.name === "AbortError") return { ok: false, cancel: true, text: "キャンセルしました" }; return { ok: false, text: `${e.name}: ${e.message}` }; }
+    let existing = null;
+    try { existing = await (await h.getFile()).text(); } catch (e) {}
+    const r = await rpc(rpcName, [payload, existing, h.name]);
+    if (!r.ok) {
+      if (!existing) { try { await h.remove(); } catch (e) {} }   // 保存先を選んだときに作られた空のファイルを残さない
+      return r;
+    }
+    if (r.result === "written") await writeText(h, r.content);
+    idbSet(key, h);
+    logDone(h.name, r);
+    return { ok: true, path: h.name, result: r.result, text: "OK" };
+  }
+  // 旧 export_header(payload) → {ok, path, result, text}（キャンセルは {ok:false, cancel:true}）
+  async function export_header(payload) {
+    return exportFile("export_header_build", payload, "ExportData.h", "export", `（モーション ${(payload.motions || []).length} 件）`);
+  }
+  // 校正値（CalibData.h）。payload: {calib: {offsets, footL, footR}}
+  async function export_calib(payload) {
+    return exportFile("export_calib_build", payload, "CalibData.h", "calib", "（校正値）");
+  }
+  // 「CalibData.h を開く」: 中身を返すだけ（解析はPython側の calib_parse）。キャンセルは null
+  async function load_calib_file() {
+    if (!canPick()) { fallbackNotice(); const f = await chooseFile(".h,text/plain"); return f; }
+    let hs;
+    try { hs = await withGesture(() => pick(window.showOpenFilePicker, { types: H_TYPES, multiple: false }, "calib"), "ファイルを選ぶ"); }
+    catch (e) { if (e.name === "AbortError") return null; throw apiError(`${e.name}: ${e.message}`); }
+    const h = hs[0];
+    const text = await (await h.getFile()).text();
+    idbSet("calib", h);
+    return { fileName: h.name, text };
+  }
+
+  const local = { save_text_file, load_text_file, export_header, export_calib, load_calib_file };
+  const apiObj = new Proxy({}, {
+    get: (_, name) => (typeof name !== "string" || name === "then") ? undefined
+      : (...args) => (local[name] ? local[name](...args) : rpc(name, args)),
+  });
+  window.pywebview = { api: apiObj };
+
+  // ---- 生存通知: 最小化中も間引かれにくい Worker から送る ----
+  function startAlive() {
+    const send = () => fetch(`/api/_alive${qs}`, { method: "POST", headers: HDR, body: "{}", cache: "no-store" }).catch(() => {});
+    send();
+    try {
+      const src = `setInterval(() => fetch(${JSON.stringify("/api/_alive" + qs)}, { method: "POST", headers: ${JSON.stringify(HDR)}, body: "{}", cache: "no-store" }).catch(() => {}), 3000);`;
+      new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
+    } catch (e) {
+      setInterval(send, 3000);
+    }
+  }
+  window.addEventListener("beforeunload", () => { try { navigator.sendBeacon(`/api/_bye${qs}`, new Blob(["{}"], { type: "application/json" })); } catch (e) {} });
+
+  window.addEventListener("DOMContentLoaded", () => {
+    startAlive();
+    const b = document.getElementById("btn-log-folder");
+    if (b) b.onclick = () => rpc("open_log_folder", []).catch(e => note(`[UI ERROR] open_log_folder: ${e}`));
+    if (P.get("b") === "0") setTimeout(() => setSysStatus && setSysStatus("専用ウィンドウでは開けませんでした（通常のブラウザで表示中）", "#B45309"), 0);
+    window.dispatchEvent(new Event("pywebviewready"));   // 旧版と同じ合図で、画面の初期化を始める
+  });
+})();
+</script>
+<script>
+// ======================================================================
+// 定義
+// ======================================================================
+const ICS_PER_DEG = 8000 / 270;
+const toIcs = d => Math.round(7500 + d * ICS_PER_DEG);
+const toDeg = v => (v - 7500) / ICS_PER_DEG;
+const fmtDeg = d => (d >= 0 ? "+" : "") + d.toFixed(1) + "°";
+
+const PARTS = [
+  { key: "hip",   label: "腰 (Hip)",               short: "腰",   color: "var(--c-hip)",  axes: [0] },
+  { key: "r_arm", label: "右腕 (Right Arm) [4軸]", short: "右腕", color: "var(--c-rarm)", axes: [5, 6, 7, 8] },
+  { key: "l_arm", label: "左腕 (Left Arm) [4軸]",  short: "左腕", color: "var(--c-larm)", axes: [1, 2, 3, 4] },
+  { key: "r_leg", label: "右脚 (Right Leg) [5軸]", short: "右脚", color: "var(--c-rleg)", axes: [14, 15, 16, 17, 18], foot: 1 },
+  { key: "l_leg", label: "左脚 (Left Leg) [5軸]",  short: "左脚", color: "var(--c-lleg)", axes: [9, 10, 11, 12, 13], foot: 0 },
+];
+const TRACK_ORDER = ["r_arm", "l_arm", "hip", "r_leg", "l_leg"];
+const AXIS_NAMES = ["腰 (hipServo)", "左肩 J1", "左肩 J2", "左肘 J3", "左手首 J4", "右肩 J1", "右肩 J2", "右肘 J3", "右手首 J4",
+  "左腿 1", "左腿 2", "左膝 3", "左足首 4", "左足首 5", "右腿 1", "右腿 2", "右膝 3", "右足首 4", "右足首 5"];
+const partOf = i => PARTS.find(p => p.axes.includes(i));
+const partByKey = k => PARTS.find(p => p.key === k);
+
+const PROTO_VERSION = 7;
+const MODE = { AUTO: 0, TEACH: 1, PLAYBACK: 2, ESTOP: 3 };
+const FL = { ESTOP_LATCHED: 0x01, COMM_LOST: 0x02, BUS_OVERRUN: 0x04, CALIB_DIRTY: 0x08 };
+const EV = { PLAY_DONE: 0, ESTOP: 1, PLAY_START: 3, COMM_LOST: 4, COMM_RESTORED: 5 };
+const TX_PERIOD_MS = 25, HEARTBEAT_MS = 300, MIN_FRAME_MS = 20, LANE_PAD = 8;
+const POSE_FIELDS = [
+  { k: "x", label: "X 上下 [mm]", min: 100, max: 345 },
+  { k: "y", label: "Y 左右 [mm]", span: 100 },
+  { k: "z", label: "Z 前後 [mm]", span: 100 },
+  { k: "roll", label: "Roll [deg]", span: 30 },
+  { k: "yaw", label: "Yaw [deg]", span: 30 },
+];
+// 既定のプリセット（「プリセットを既定に」で戻る値）
+const DEFAULT_PRESETS = () => [
+  { id: "zero", builtin: true, section: "基本姿勢 プリセット", name: "零点位置 (Zero Pose)", desc: "全19軸 0.0° 直立状態", values: Object.fromEntries([...Array(19).keys()].map(i => [i, 0])) },
+  { id: "ready", builtin: true, section: "基本姿勢 プリセット", name: "攻撃準備位置 (Ready)", desc: "両肘曲げ / 膝屈曲 / 低重心", values: { 5: 45, 1: -45, 7: 60, 3: 60, 16: 30, 11: 30 } },
+  { id: "r_raise", builtin: true, section: "部位サブ プリセット", name: "[右腕] 挙手ポーズ", desc: "J1:+90.0° J3:+45.0°", values: { 5: 90, 7: 45 } },
+  { id: "hip_twist", builtin: true, section: "部位サブ プリセット", name: "[腰] 右30°捻り", desc: "hipServo:+30.0°", values: { 0: 30 } },
+];
+const SECTIONS = ["基本姿勢 プリセット", "部位サブ プリセット", "登録ポーズ"];
+
+// ======================================================================
+// 状態
+// ======================================================================
+const ax = [];
+const partEnabled = Object.fromEntries(PARTS.map(p => [p.key, true]));
+let motions = [];
+let curMotion = -1;
+let sel = null;                     // { track, item }（item はトラック配列内のオブジェクト参照）
+let poseLib = DEFAULT_PRESETS();
+let settings = { target: "ESP32_Robot", zoom: 0.2, snap: 1, captureMs: 500, wins: {}, exportPath: "" };
+let fps = 40;
+let filesDirty = false;
+const undoStack = [], redoStack = [];
+
+let conn = "disconnected", mcuMode = -1, mcuFlags = 0, protoOk = false, lastStateAt = 0;
+let dirtyMask = 0, reliablePending = false, fbSent = false, txSending = false, lastTxAt = 0;
+let syncOnce = false;
+const lastCmd = new Array(19).fill(0), lastErr = new Array(19).fill(0);
+let offsets = null, calibNow = null;
+
+const poseUI = {};
+const poseDriven = { l_leg: false, r_leg: false };
+let realtimeRunning = false;   // リアルタイム再生の送信中
+let cursorMs = 0;                  // タイムラインの挿入位置（ms）
+let rulerScrubbing = false;
+let drag = null;
+
+const isTeach = () => mcuMode === MODE.TEACH;
+const api = () => window.pywebview && window.pywebview.api;
+const $ = id => document.getElementById(id);
+async function call(name, ...args) {
+  const a = api();
+  if (!a) { logMsg("[UI] pywebview API が未初期化です。"); return null; }
+  try { return await a[name](...args); } catch (e) { logMsg(`[UI ERROR] ${name}: ${e}`); return null; }
+}
+async function cmd(label, name, ...args) {
+  const r = await call(name, ...args);
+  if (!r) return false;
+  if (!r.ok) logMsg(`[MCU] ${label}: ${r.text}`);
+  return r.ok;
+}
+function logMsg(m) {
+  const t = $("log-text");
+  t.value += m + "\n";
+  if (t.value.length > 60000) t.value = t.value.slice(-40000);
+  t.scrollTop = t.scrollHeight;
+  if (/ERROR|失敗|拒否|不正/.test(m)) setSysStatus(m.replace(/^\[[^\]]+\]\s*/, ""), "#B91C1C");
+}
+function setSysStatus(text, color = "#047857") { const e = $("sys-status"); e.textContent = text; e.style.color = color; }
+const escapeHtml = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ---- アプリ用JSON（ポーズライブラリ・設定）: main.py と同じフォルダに自動保存 ----
+let saveTimers = {};
+function saveAppJson(key, data) {
+  clearTimeout(saveTimers[key]);
+  saveTimers[key] = setTimeout(() => call("save_app_json", key, data), 300);
+}
+const saveSettings = () => saveAppJson("settings", settings);
+const savePoseLib = () => saveAppJson("pose_library", { format: "robot-pose-library", version: 1, poses: poseLib });
+
+// ======================================================================
+// サーボUI
+// ======================================================================
+function buildServoUI() {
+  PARTS.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "win-groupbox part-card";
+    card.id = `card-${p.key}`;
+    card.innerHTML = `
+      <div class="part-head">
+        <span class="title"><span class="dot" style="background:${p.color}"></span>${p.label}</span>
+        <span class="ctl">
+          <button class="win-btn win-btn-sm" data-partfree="${p.key}" title="この部位を脱力 / 解除">FREE</button>
+          <label class="part-chk" title="外すと、この部位は操作もキャプチャもしません（左上の「操作する部位」と連動）">
+            <input type="checkbox" checked data-partchk="${p.key}"><span>有効</span>
+          </label>
+        </span>
+      </div>
+      <div></div>`;
+    const body = card.lastElementChild;
+    p.axes.forEach(i => {
+      const row = document.createElement("div");
+      row.className = "axis-row";
+      row.innerHTML = `
+        <span class="name" title="${AXIS_NAMES[i]}">${AXIS_NAMES[i]}</span>
+        <input type="range" min="-135" max="135" value="0" step="0.5">
+        <input type="text" class="win-input mono val" value="+0.0°" style="color:${p.color}">
+        <span class="link" title="サーボ通信: ---"></span>
+        <button class="win-btn win-btn-sm">FREE</button>`;
+      body.appendChild(row);
+      const a = { i, sld: row.children[1], val: row.children[2], link: row.children[3], free: row.children[4], deg: 0, isFree: false };
+      ax[i] = a;
+      a.sld.addEventListener("input", () => { setAxisDeg(i, parseFloat(a.sld.value)); setFree(i, false); markDirty(i, false); });
+      a.sld.addEventListener("change", () => markDirty(i, true));
+      a.sld.addEventListener("wheel", e => {
+        e.preventDefault();
+        const step = (e.shiftKey ? 5 : 0.5) * (e.deltaY < 0 ? 1 : -1);
+        setAxisDeg(i, Math.max(-135, Math.min(135, Math.round((a.deg + step) * 2) / 2))); setFree(i, false); markDirty(i, true);
+      }, { passive: false });
+      a.val.addEventListener("focus", () => { a.val.value = a.deg.toFixed(1); a.val.select(); });
+      a.val.addEventListener("change", () => {
+        let d = parseFloat(a.val.value); if (isNaN(d)) d = a.deg;
+        setAxisDeg(i, Math.max(-135, Math.min(135, d))); setFree(i, false); markDirty(i, true); a.val.blur();
+      });
+      a.val.addEventListener("keydown", e => { if (e.key === "Enter") a.val.blur(); });
+      a.val.addEventListener("blur", () => renderAxis(i));
+      a.free.addEventListener("click", () => { setFree(i, !a.isFree); markDirty(i, true); });
+    });
+    $(`slot-${p.key}`).appendChild(card);
+    card.querySelector(`[data-partchk]`).addEventListener("change", e => setPartEnabled(p.key, e.target.checked));
+    card.querySelector(`[data-partfree]`).addEventListener("click", () => {
+      const on = !p.axes.every(i => ax[i].isFree);
+      p.axes.forEach(i => { setFree(i, on); markDirty(i, true); });
+    });
+  });
+}
+function setAxisDeg(i, d) { ax[i].deg = d; ax[i].sld.value = d; renderAxis(i); }
+function setFree(i, on) { ax[i].isFree = on; ax[i].free.classList.toggle("free-on", on); ax[i].free.textContent = on ? "FREE中" : "FREE"; renderAxis(i); }
+function renderAxis(i) {
+  const a = ax[i];
+  if (document.activeElement === a.val) return;
+  a.val.value = a.isFree ? "FREE" : fmtDeg(a.deg);
+  a.val.classList.toggle("err", !!lastErr[i]);
+}
+const axisValue = i => ax[i].isFree ? 0 : toIcs(ax[i].deg);
+function setPartEnabled(key, on) {
+  partEnabled[key] = on;
+  $(`card-${key}`).classList.toggle("part-bypassed", !on);
+  const chk = document.querySelector(`[data-partchk="${key}"]`);
+  if (chk) chk.checked = on;
+  renderPartButtons();
+  if (on) partByKey(key).axes.forEach(i => markDirty(i, true));
+  renderTimeline();
+}
+// 部位選択: クリック = その部位だけ / Ctrl(Shift)+クリック = 追加・解除 / 全身 = すべて
+function selectPart(key, multi) {
+  if (key === "all") { PARTS.forEach(p => setPartEnabled(p.key, true)); return; }
+  if (multi) {
+    const on = !partEnabled[key];
+    if (!on && PARTS.filter(p => partEnabled[p.key]).length <= 1) return;   // 最後の1部位は外さない
+    setPartEnabled(key, on);
+  } else {
+    PARTS.forEach(p => setPartEnabled(p.key, p.key === key));
+  }
+}
+function renderPartButtons() {
+  const all = PARTS.every(p => partEnabled[p.key]);
+  document.querySelectorAll(".part-sel").forEach(b => b.classList.toggle("win-btn-primary", b.dataset.part === "all" ? all : !all && !!partEnabled[b.dataset.part]));
+}
+function markDirty(i, reliable) {
+  dirtyMask |= (1 << i);
+  if (reliable) reliablePending = true;
+  const p = partOf(i);
+  if (p.foot !== undefined) poseDriven[p.key] = false;
+}
+function enabledMask() { let m = 0; PARTS.forEach(p => { if (partEnabled[p.key]) p.axes.forEach(i => m |= (1 << i)); }); return m; }
+
+// ======================================================================
+// 座標(IK)パネル
+// ======================================================================
+function buildIkPanel() {
+  ["r_leg", "l_leg"].forEach(key => {
+    const p = partByKey(key);
+    const box = document.createElement("div");
+    box.className = "ik-box";
+    box.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span class="bold"><span class="dot" style="background:${p.color}"></span> ${p.short}</span>
+        <span class="sub" data-st></span>
+      </div>
+      <div style="display:flex; gap:4px; margin-bottom:4px;">
+        <button class="win-btn win-btn-primary" data-neutral style="flex:1" title="立ち姿勢の座標を取得して、座標で動かせるようにします">ニュートラル取得</button>
+        <select class="win-input" data-ik><option value="0">膝 曲げ方向 0</option><option value="1">膝 曲げ方向 1</option></select>
+      </div>
+      <div data-fields></div>`;
+    $("ik-panel").appendChild(box);
+    const ui = { ready: false, dirty: false, reliable: false, sliders: {}, inputs: {}, st: box.querySelector("[data-st]"), ik: box.querySelector("[data-ik]") };
+    poseUI[key] = ui;
+    POSE_FIELDS.forEach(pf => {
+      const row = document.createElement("div");
+      row.className = "ik-row";
+      row.innerHTML = `<span class="l">${pf.label}</span><input type="range" min="-100" max="100" step="0.5" value="0" disabled><input type="text" class="win-input mono" value="0" disabled>`;
+      box.querySelector("[data-fields]").appendChild(row);
+      const s = row.children[1], t = row.children[2];
+      ui.sliders[pf.k] = s; ui.inputs[pf.k] = t;
+      s.addEventListener("input", () => { t.value = s.value; poseChanged(key, false); });
+      s.addEventListener("change", () => poseChanged(key, true));
+      t.addEventListener("change", () => { let v = parseFloat(t.value); if (isNaN(v)) v = 0; s.value = v; t.value = parseFloat(s.value); poseChanged(key, true); });
+    });
+    ui.ik.addEventListener("change", () => poseChanged(key, true));
+    box.querySelector("[data-neutral]").addEventListener("click", async () => {
+      if (!isTeach()) return alert("座標指定は同期モード (TX) で使えます。");
+      await cmd("ニュートラル", "request_neutral", p.foot);
+    });
+  });
+}
+function poseChanged(key, reliable) {
+  const ui = poseUI[key];
+  if (!ui.ready) return;
+  ui.dirty = true; if (reliable) ui.reliable = true;
+  poseDriven[key] = true;
+}
+function setPoseRanges(key, c) {
+  const ui = poseUI[key];
+  POSE_FIELDS.forEach(pf => {
+    const s = ui.sliders[pf.k], t = ui.inputs[pf.k];
+    s.min = (pf.min !== undefined ? pf.min : c[pf.k] - pf.span).toFixed(1);
+    s.max = (pf.max !== undefined ? pf.max : c[pf.k] + pf.span).toFixed(1);
+    s.value = c[pf.k]; t.value = parseFloat(s.value);
+    s.disabled = false; t.disabled = false;
+  });
+  ui.ready = true;
+}
+function setPoseFields(key, v) {
+  const ui = poseUI[key];
+  if (!ui.ready) setPoseRanges(key, { x: v.x, y: v.y, z: v.z, roll: v.roll || 0, yaw: v.yaw || 0 });
+  POSE_FIELDS.forEach(pf => { if (v[pf.k] !== undefined) { ui.sliders[pf.k].value = v[pf.k]; ui.inputs[pf.k].value = parseFloat(ui.sliders[pf.k].value); } });
+  if (v.ik !== undefined) ui.ik.value = String(v.ik);
+}
+function getPoseFields(key) {
+  const ui = poseUI[key];
+  const g = k => parseFloat(ui.inputs[k].value) || 0;
+  return { x: g("x"), y: g("y"), z: g("z"), roll: g("roll"), yaw: g("yaw"), ik: parseInt(ui.ik.value) };
+}
+function renderLegCompare() {
+  if (!$("win-compare").classList.contains("open")) return;
+  let h = "";
+  for (let k = 0; k < 5; k++) {
+    const r = lastCmd[14 + k] ? toDeg(lastCmd[14 + k]) : null, l = lastCmd[9 + k] ? toDeg(lastCmd[9 + k]) : null;
+    const d = (r !== null && l !== null) ? Math.abs(r) - Math.abs(l) : null;
+    const w = d !== null && Math.abs(d) > 2 ? ' style="color:#DC2626;font-weight:bold"' : "";
+    h += `<tr><td>J${k + 1}</td><td>${r === null ? "FREE" : fmtDeg(r)}</td><td>${l === null ? "FREE" : fmtDeg(l)}</td><td${w}>${d === null ? "-" : fmtDeg(d)}</td></tr>`;
+  }
+  $("leg-compare").innerHTML = h;
+}
+
+// ======================================================================
+// マイコンからの受信
+// ======================================================================
+function onConnection(st) {
+  conn = st.state || (st.connected ? "connected" : "disconnected");
+  const btn = $("btn-ble"), txt = $("txt-ble-btn"), s = $("ble-state");
+  $("ble-lamp").className = "lamp" + (conn === "connected" ? " on" : (conn === "connecting" || conn === "disconnecting") ? " busy" : "");
+  btn.disabled = conn === "connecting" || conn === "disconnecting";
+  if (conn === "connected") {
+    txt.textContent = "切断"; btn.className = "win-btn"; s.textContent = `接続中: ${st.name || ""}`;
+    setSysStatus(`オンライン (${st.name || ""})`);
+  } else if (conn === "connecting") {
+    txt.innerHTML = '<span class="spinner"></span> 接続中'; btn.className = "win-btn win-btn-success"; s.textContent = "探しています...";
+    setSysStatus(`${$("txt-ble-target").value} に接続中...`, "#B45309");
+  } else if (conn === "disconnecting") {
+    txt.textContent = "切断中"; s.textContent = "切断中...";
+  } else {
+    txt.textContent = "接続"; btn.className = "win-btn win-btn-success"; s.textContent = "未接続";
+    mcuMode = -1; protoOk = false; lastStateAt = 0; stopRealtime(); setSysStatus("オフライン", "#475569");
+    calibNow = null; renderCalibList();
+    $("link-summary").textContent = "---";
+  }
+  renderMode();
+}
+function onHello(h) {
+  protoOk = h.version === PROTO_VERSION;
+  if (h.fps) { fps = h.fps; renderTimeline(); }
+  if (protoOk) logMsg(`[MCU] プロトコル v${h.version} / ${fps}fps / 最大 ${h.maxFrames} フレーム`);
+  else { logMsg(`[ERROR] ファームのプロトコル v${h.version} とPCアプリ v${PROTO_VERSION} が一致しません。`); alert("ファームとPCアプリの版が一致しません。両方を更新してください。"); }
+}
+function onState(st) {
+  if (conn !== "connected") return;
+  lastStateAt = performance.now();
+  const prev = mcuMode;
+  mcuMode = st.mode; mcuFlags = st.flags;
+  if (prev !== mcuMode) onModeChanged(prev);
+  renderMode();
+  for (let i = 0; i < 19; i++) {
+    lastCmd[i] = st.cmd[i];
+    lastErr[i] = (st.err >> i) & 1;
+    const p = partOf(i);
+    const driven = p.foot !== undefined && poseDriven[p.key];
+    if (!isTeach() || driven || syncOnce) {
+      if (st.cmd[i] === 0) { if (!isTeach()) setFree(i, true); }
+      else { if (!isTeach()) setFree(i, false); setAxisDeg(i, toDeg(st.cmd[i])); }
+    }
+    renderAxis(i);
+  }
+  syncOnce = false;
+  renderLegCompare();
+  ["l_leg", "r_leg"].forEach(k => {
+    const e = partByKey(k).axes.some(i => lastErr[i]);
+    poseUI[k].st.textContent = e ? "エラー: 到達不可/範囲外" : (poseDriven[k] ? "IK: OK" : "");
+    poseUI[k].st.style.color = e ? "#DC2626" : "#15803D";
+  });
+  $("txt-calib-state").textContent = offsets ? ((st.flags & FL.CALIB_DIRTY) ? "変更あり（未エクスポート）" : "書き込み済みと同じ") : "未取得";
+}
+function onFb(fb) {
+  if (conn !== "connected") return;
+  for (let i = 0; i < 19; i++) {
+    if (((fb.valid >> i) & 1) && ax[i].isFree) setAxisDeg(i, toDeg(fb.pos[i]));   // 手で動かしたFREE軸の角度（キャプチャ用）
+  }
+}
+function onLink(l) {
+  if (conn !== "connected") return;
+  let worst = 100, active = 0;
+  l.axes.forEach((a, i) => {
+    const dot = ax[i].link;
+    if (a.rate === 255) { dot.style.background = "#CBD5E1"; dot.style.boxShadow = ""; dot.title = "サーボ通信: この1秒は送信なし"; return; }
+    active++; worst = Math.min(worst, a.rate);
+    dot.style.background = a.rate >= 95 ? "#10B981" : a.rate >= 70 ? "#F59E0B" : "#DC2626";
+    dot.title = `サーボ通信: 応答 ${a.rate}% / 往復 ${(a.rttUs / 1000).toFixed(2)}ms` + (a.rej ? ` / 範囲外で拒否 ${a.rej}回` : "");
+    dot.style.boxShadow = a.rej ? "0 0 0 2px #FCA5A5" : "";
+  });
+  const s = $("link-summary");
+  s.textContent = active ? `最低応答 ${worst}% / 返信待ち ${(l.timeoutUs / 1000).toFixed(1)}ms` + (l.late ? ` / 遅延返信 ${l.late}` : "") : `待機中 / 返信待ち ${(l.timeoutUs / 1000).toFixed(1)}ms`;
+  s.style.color = worst >= 95 ? "#047857" : worst >= 70 ? "#B45309" : "#B91C1C";
+}
+function onCalib(c) {
+  offsets = c.offsets;
+  calibNow = { offsets: c.offsets.slice(), footL: c.footL, footR: c.footR };
+  $("txt-calib-state").textContent = c.dirty ? "変更あり（未書き込み）" : "書き込み済みと同じ";
+  for (let i = 0; i < 19; i++) ax[i].sld.title = `オフセット: 生ICS ${c.offsets[i]}（${c.offsets[i] - 7500 >= 0 ? "+" : ""}${c.offsets[i] - 7500}）`;
+  renderCalibList();
+  syncOnce = true;
+}
+function onPoseEcho(p) {
+  const key = p.foot === 0 ? "l_leg" : "r_leg";
+  const v = p.v;
+  setPoseRanges(key, { x: v[0], y: v[1], z: v[2], roll: v[3] * 180 / Math.PI, yaw: v[5] * 180 / Math.PI });
+  poseDriven[key] = true; poseUI[key].dirty = false;
+  logMsg(`[IK] ${partByKey(key).short}: ニュートラル X=${v[0].toFixed(1)} Y=${v[1].toFixed(1)} Z=${v[2].toFixed(1)}`);
+}
+function onEvent(code) {
+  if (code === EV.PLAY_DONE) { logMsg("[MCU] 再生が完了しました。"); setSysStatus("再生完了"); }
+  else if (code === EV.PLAY_START) { logMsg("[MCU] 再生を開始しました。"); stopRealtime(); }
+  else if (code === EV.ESTOP) { logMsg("[MCU] 緊急停止しました。"); stopRealtime(); setSysStatus("緊急停止中", "#B91C1C"); }
+  else if (code === EV.COMM_LOST) logMsg("[MCU] PCからの通信が途絶えたため、その場で保持しました。");
+  else if (code === EV.COMM_RESTORED) logMsg("[MCU] 通信が復帰しました。");
+}
+function onModeChanged(prev) {
+  dirtyMask = 0; reliablePending = false; fbSent = false;
+  if (mcuMode === MODE.TEACH) { syncOnce = true; logMsg("[MODE] 同期モード (TX)"); }
+  else {
+    ["l_leg", "r_leg"].forEach(k => { poseDriven[k] = false; poseUI[k].dirty = false; });
+    if (prev === MODE.TEACH) stopRealtime();
+    logMsg(`[MODE] ${["読取りモード (RX)", "同期モード (TX)", "マイコン再生中", "緊急停止中"][mcuMode] || mcuMode}`);
+  }
+}
+function renderMode() {
+  const rx = $("btn-mode-rx"), tx = $("btn-mode-tx");
+  const on = conn === "connected" && mcuMode >= 0;
+  rx.disabled = tx.disabled = !on || mcuMode === MODE.PLAYBACK;
+  rx.className = "win-btn mode-btn" + (on && mcuMode !== MODE.TEACH ? " on-rx" : "");
+  tx.className = "win-btn mode-btn" + (on && mcuMode === MODE.TEACH ? " on-tx" : "");
+  $("servo-container").classList.toggle("rx-disabled", !isTeach());
+  const n = $("mode-notice");
+  const latched = (mcuFlags & FL.ESTOP_LATCHED) || mcuMode === MODE.ESTOP;
+  $("btn-estop-clear").style.display = on && latched ? "" : "none";
+  if (!on) { n.className = "notice"; n.style.display = ""; n.innerHTML = conn === "connected" ? "マイコンの応答を待っています..." : "未接続です。ツールバーの<strong>「接続」</strong>を押してください（接続直後は安全のため読取りモード）。"; }
+  else if (mcuMode === MODE.TEACH) {
+    n.style.display = (mcuFlags & (FL.COMM_LOST | FL.BUS_OVERRUN)) ? "" : "none";
+    n.className = "notice";
+    n.textContent = (mcuFlags & FL.COMM_LOST) ? "通信が途絶えたため、ロボットはその場で保持しています。" : "サーボへの送信が周期内に収まっていません（一部の軸は次の周期へ持ち越し）。";
+  }
+  else if (mcuMode === MODE.PLAYBACK) { n.style.display = ""; n.className = "notice play"; n.textContent = "マイコンでモーションを再生中です。"; }
+  else if (mcuMode === MODE.ESTOP) { n.style.display = ""; n.className = "notice estop"; n.innerHTML = "<strong>緊急停止中</strong>。自律動作を再開するには「緊急停止を解除」。TXでの手動操作は可能です。"; }
+  else { n.style.display = ""; n.className = "notice"; n.innerHTML = "現在<strong>「読取りモード (RX)」</strong>です。スライダー操作やPCプレビューを行うにはヘッダーで<strong>「同期モード (TX)」</strong>をONにしてください。"; }
+}
+
+// ======================================================================
+// 送信（TX中のみ。変化した軸だけを25ms周期で）
+// ======================================================================
+async function txPump() {
+  if (txSending || !isTeach() || conn !== "connected") return;
+  const now = performance.now();
+  const mask = dirtyMask & enabledMask();
+  const poseKeys = ["l_leg", "r_leg"].filter(k => poseUI[k].dirty && partEnabled[k]);
+  const needHb = now - lastTxAt > HEARTBEAT_MS;
+  if (!mask && !poseKeys.length && !needHb && fbSent) return;
+  txSending = true;
+  try {
+    const a = api();
+    if (mask || !fbSent) {
+      const reliable = reliablePending || !fbSent;
+      dirtyMask &= ~mask; reliablePending = false;
+      await a.send_teach_frame(mask, 0, [...Array(19).keys()].map(axisValue), reliable);
+      fbSent = true;
+    }
+    for (const k of poseKeys) {
+      const ui = poseUI[k]; const rel = ui.reliable; ui.dirty = false; ui.reliable = false;
+      const p = getPoseFields(k);
+      await a.send_pose(partByKey(k).foot, p.ik, p.x, p.y, p.z, p.roll, p.yaw, rel);
+    }
+    if (!mask && !poseKeys.length) await a.heartbeat();
+    lastTxAt = now;
+  } catch (e) { logMsg(`[TX ERROR] ${e}`); }
+  finally { txSending = false; }
+}
+
+// ======================================================================
+// モーション（マルチトラック）
+//   motion = { Name, Tracks: { hip:[item], r_arm:[item], ... } }
+//   item = キーフレーム { DurationMs, Mode, Angles:[部位の軸ぶんの論理ICS, 0=FREE, -1=保持], Pose?: {...} }
+//        | 空白       { Gap: true, DurationMs }   … その間はその部位を動かさない（マイコンでは -2）
+// ======================================================================
+const emptyTracks = () => Object.fromEntries(PARTS.map(p => [p.key, []]));
+const curM = () => curMotion >= 0 ? motions[curMotion] : null;
+const trackLen = arr => arr.reduce((s, k) => s + k.DurationMs, 0);
+const frameMs = () => 1000 / fps;
+const gridMs = () => frameMs() * (settings.snap || 1);
+const snapDur = ms => Math.max(Math.max(MIN_FRAME_MS, frameMs()), Math.round(ms / gridMs()) * gridMs());
+const snapGap = ms => Math.max(0, Math.round(ms / gridMs()) * gridMs());
+const fmtMs = ms => `${Math.round(ms)}ms`;
+const frames = ms => Math.round(ms / frameMs());
+
+// 元に戻す / やり直す
+function snapshot() { return JSON.stringify({ motions, curMotion }); }
+function pushUndo() {
+  undoStack.push(snapshot());
+  if (undoStack.length > 100) undoStack.shift();
+  redoStack.length = 0;
+  setFilesDirty(true);
+}
+function restore(s) {
+  const d = JSON.parse(s);
+  motions = d.motions; curMotion = Math.min(d.curMotion, motions.length - 1); sel = null; renderAll();
+}
+function undo() { if (!undoStack.length) return; redoStack.push(snapshot()); restore(undoStack.pop()); setFilesDirty(true); }
+function redo() { if (!redoStack.length) return; undoStack.push(snapshot()); restore(redoStack.pop()); setFilesDirty(true); }
+function setFilesDirty(v) { filesDirty = v; $("txt-dirty").textContent = v ? "● 未保存" : ""; }
+
+// ---- 挿入位置（カーソル）: 全部位で同じ時刻に入る。ルーラーのクリック／ドラッグ、または ←→ で動かす ----
+function setCursor(ms) {
+  cursorMs = Math.max(0, ms);
+  renderCursor();
+}
+function renderCursor() {
+  $("tl-cursor").style.left = (150 + cursorMs * settings.zoom + LANE_PAD) + "px";
+  $("tl-scrub-thumb").style.left = (LANE_PAD + cursorMs * settings.zoom) + "px";
+  $("txt-cursor").textContent = `挿入位置 ${Math.round(cursorMs)}ms`;
+}
+function scrubCursorTo(clientX) {
+  const r = $("tl-scrub").getBoundingClientRect();
+  setCursor(snapGap((clientX - r.left - LANE_PAD) / settings.zoom));
+}
+
+// t(ms) より前にある、直近のキーフレーム（キャプチャの「変化なし」判定に使う）
+function keyframeBefore(tr, t) {
+  let acc = 0, last = null;
+  for (const it of tr) {
+    if (acc < t - 1e-6 && !it.Gap) last = it;
+    acc += it.DurationMs;
+  }
+  return last;
+}
+// 各軸の、idx より前の直近の値（-1=触らない, 0=FREE は飛ばす）
+function lastKnownAngles(tr, idx) {
+  const n = tr[idx].Angles ? tr[idx].Angles.length : 0;
+  const res = new Array(n).fill(null);
+  for (let i = idx - 1; i >= 0; i--) {
+    const it = tr[i];
+    if (it.Gap) continue;
+    it.Angles.forEach((v, j) => { if (res[j] === null && v !== -1 && v !== 0) res[j] = v; });
+    if (res.every(v => v !== null)) break;
+  }
+  return res;
+}
+function lastPoseBefore(tr, idx) {
+  for (let i = idx - 1; i >= 0; i--) if (!tr[i].Gap && tr[i].Pose) return tr[i].Pose;
+  return null;
+}
+// 途中で割ると、前半は「直前の姿勢 → 割った時刻の姿勢」、後半は元の目標へ向かう（見た目の軌道をなるべく保つ）
+function splitItem(tr, idx, u) {
+  const it = tr[idx], D = it.DurationMs, rest = D - u;
+  if (it.Gap) return [{ Gap: true, DurationMs: u }, { Gap: true, DurationMs: rest }];
+  const e = it.Mode === 1 ? 1 : (u / D) * (u / D) * (3 - 2 * (u / D));
+  const prev = lastKnownAngles(tr, idx);
+  const angles = it.Angles.map((to, j) => {
+    const st = prev[j];
+    if (to === -1 || to === 0 || st === null || st === 0 || st === -1) return to;
+    return Math.round(st + (to - st) * e);
+  });
+  const first = { ...it, DurationMs: u, Angles: angles };
+  const second = { ...it, DurationMs: rest, Angles: it.Angles.slice() };
+  if (it.Pose) {
+    const pp = lastPoseBefore(tr, idx);
+    if (pp && it.Mode !== 1) {
+      const v = { ik: it.Pose.ik || 0 };
+      POSE_FIELDS.forEach(pf => v[pf.k] = pp[pf.k] + (it.Pose[pf.k] - pp[pf.k]) * e);
+      first.Pose = v;
+    } else first.Pose = { ...it.Pose };
+    second.Pose = { ...it.Pose };
+  }
+  return [first, second];
+}
+// 時刻 t に kf を挿入する（後ろのブロックは押し下げる。空いていれば空白で埋める）
+function insertAt(tr, t, kf) {
+  const L = trackLen(tr);
+  if (L < t - 1e-6) tr.push({ Gap: true, DurationMs: t - L });
+  let acc = 0, i = 0;
+  while (i < tr.length && acc + tr[i].DurationMs <= t + 1e-6) { acc += tr[i].DurationMs; i++; }
+  if (i < tr.length && acc < t - 1e-6) {
+    tr.splice(i, 1, ...splitItem(tr, i, t - acc));
+    i += 1;
+  }
+  tr.splice(i, 0, kf);
+  return kf;
+}
+
+function capture() {
+  const m = curM();
+  if (!m) return alert("先に右側の「＋ 新規」でモーションを作成してください。");
+  const force = $("chk-capture-same").checked;
+  const dur = snapDur(parseFloat($("num-capture-ms").value) || 500);
+  const t = snapGap(cursorMs);
+  const added = [], skipped = [];
+  const before = snapshot();
+  PARTS.forEach(p => {
+    if (!partEnabled[p.key]) return;
+    const angles = p.axes.map(axisValue);
+    const pose = (p.foot !== undefined && poseDriven[p.key] && poseUI[p.key].ready) ? getPoseFields(p.key) : null;
+    const tr = m.Tracks[p.key];
+    const prev = keyframeBefore(tr, t);
+    const same = prev && JSON.stringify(prev.Angles) === JSON.stringify(angles) && JSON.stringify(prev.Pose || null) === JSON.stringify(pose);
+    if (same && !force) { skipped.push(p.short); return; }
+    const kf = { DurationMs: dur, Mode: 0, Angles: angles };
+    if (pose) kf.Pose = pose;
+    insertAt(tr, t, kf);
+    added.push(p.short + (pose ? "(座標)" : ""));
+  });
+  if (added.length) { undoStack.push(before); redoStack.length = 0; setFilesDirty(true); setCursor(t + dur); }
+  sel = null;
+  logMsg(added.length ? `[KF] ${Math.round(t)}ms に挿入: ${added.join(", ")}` + (skipped.length ? ` / 変化なしでスキップ: ${skipped.join(", ")}` : "") : "[KF] 有効な部位に変化がありません（「変化なしも記録」で強制追加）。");
+  renderAll();
+}
+
+function addGap() {
+  const m = curM(); if (!m) return;
+  pushUndo();
+  const len = snapDur(gridMs() * Math.max(1, Math.round(200 / gridMs())));
+  if (sel) {
+    const tr = m.Tracks[sel.track];
+    const idx = tr.indexOf(sel.item);
+    const g = { Gap: true, DurationMs: len };
+    tr.splice(idx + 1, 0, g);
+    sel = { track: sel.track, item: g };
+  } else {
+    PARTS.forEach(p => { if (partEnabled[p.key]) m.Tracks[p.key].push({ Gap: true, DurationMs: len }); });
+  }
+  renderAll();
+}
+
+function deleteSelected() {
+  const m = curM(); if (!m || !sel) return;
+  pushUndo();
+  const tr = m.Tracks[sel.track];
+  const idx = tr.indexOf(sel.item);
+  if (idx >= 0) tr.splice(idx, 1);
+  // 隣り合った空白はまとめる
+  for (let i = tr.length - 1; i > 0; i--) if (tr[i].Gap && tr[i - 1].Gap) { tr[i - 1].DurationMs += tr[i].DurationMs; tr.splice(i, 1); }
+  sel = null;
+  renderAll();
+}
+
+// マイコン転送用に平坦化（トラックごとのフレーム。他の部位は -1、空白はその部位を -2）
+function flatten(m) {
+  const out = [];
+  PARTS.forEach(p => {
+    m.Tracks[p.key].forEach(it => {
+      const A = new Array(19).fill(-1);
+      if (it.Gap) { p.axes.forEach(i => A[i] = -2); out.push({ DurationMs: Math.round(it.DurationMs), Mode: 0, Angles: A, Poses: {} }); return; }
+      p.axes.forEach((i, j) => A[i] = it.Angles[j]);
+      const f = { DurationMs: Math.round(it.DurationMs), Mode: it.Mode, Angles: A, Poses: {} };
+      if (it.Pose && p.foot !== undefined) f.Poses[p.foot === 0 ? "left" : "right"] = it.Pose;
+      out.push(f);
+    });
+  });
+  return out;
+}
+
+function renderMotionList() {
+  const list = $("motion-list");
+  list.innerHTML = "";
+  if (!motions.length) list.innerHTML = '<div class="empty-hint">モーションがありません。<br>「＋ 新規」で作成するか、<br>「読込」でファイルを開きます。</div>';
+  motions.forEach((m, i) => {
+    const n = PARTS.reduce((s, p) => s + m.Tracks[p.key].filter(it => !it.Gap).length, 0);
+    const d = document.createElement("div");
+    d.className = "motion-item" + (i === curMotion ? " sel" : "");
+    const bad = nameErrorLocal(m.Name, m);
+    d.innerHTML = `<span class="nm"><span class="c">${escapeHtml(m.Name)}${bad ? ' <span class="bad" title="' + escapeHtml(bad) + '">⚠ 名前</span>' : ""}</span>` +
+      `<span class="d">${escapeHtml(m.Desc || "（説明なし）")}</span></span><span class="n">${n} KF</span>`;
+    d.title = `${m.Name}\n${m.Desc || ""}`;
+    d.addEventListener("click", () => { curMotion = i; sel = null; renderAll(); });
+    d.addEventListener("dblclick", () => $("btn-motion-rename").click());
+    list.appendChild(d);
+  });
+  $("txt-motion-count").textContent = `${motions.length} 件`;
+}
+
+function renderTimeline() {
+  const z = settings.zoom;
+  const m = curM();
+  const total = m ? Math.max(1000, ...PARTS.map(p => trackLen(m.Tracks[p.key]))) : 1000;
+  const width = Math.ceil((total + 1000) * z) + LANE_PAD * 2;   // 末尾に1秒ぶんの余白（ダブルクリックで空白を伸ばせる）
+  $("txt-grid").textContent = `グリッド ${Math.round(frameMs() * 10) / 10}ms (${fps}fps)`;
+  const ruler = $("tl-ruler-lane");
+  ruler.style.width = width + "px";
+  $("tl-scrub").style.width = width + "px";
+  const step = z > 0.4 ? 100 : z > 0.15 ? 200 : 500;
+  let r = "";
+  for (let t = 0; t <= total + 1000; t += step) r += `<span class="tl-tick mono" style="left:${t * z + LANE_PAD}px">${t}ms</span>`;
+  ruler.innerHTML = r;
+  // グリッド線: 1コマ(画面上4px以上のとき) と 100msごと
+  const fpx = frameMs() * z, gpx = gridMs() * z;
+  const minor = gpx >= 4 ? `repeating-linear-gradient(to right, #EEF2F7 0 1px, transparent 1px ${gpx}px)` : "none";
+  const major = `repeating-linear-gradient(to right, #D5DCE5 0 1px, transparent 1px ${100 * z}px)`;
+  const box = $("tl-tracks");
+  box.innerHTML = "";
+  TRACK_ORDER.forEach(key => {
+    const p = partByKey(key);
+    const row = document.createElement("div");
+    row.className = "tl-track" + (partEnabled[key] ? "" : " disabled");
+    row.innerHTML = `<div class="tl-label" title="${partEnabled[key] ? "" : "この部位は無効（キャプチャされません）"}"><span class="dot" style="background:${p.color}"></span>${p.label.replace(/ \[.*\]/, "")}</div><div class="tl-lane" style="width:${width}px"></div>`;
+    const lane = row.lastElementChild;
+    lane.style.backgroundImage = `${major}, ${minor}`;
+    lane.style.backgroundPosition = `${LANE_PAD}px 0, ${LANE_PAD}px 0`;
+    lane.addEventListener("mousedown", e => {
+      // 空き部分クリックで選択解除。ここで再描画するとダブルクリックが成立しないので、表示だけ更新する
+      if (e.target === lane) setCursor(snapGap((e.offsetX - LANE_PAD) / z));
+      if (e.target === lane && sel) { sel = null; document.querySelectorAll(".tl-block.sel").forEach(b => b.classList.remove("sel")); renderFrameBox(); }
+    });
+    lane.addEventListener("dblclick", e => {
+      if (e.target !== lane || !m) return;
+      const t = (e.offsetX - LANE_PAD) / z, end = trackLen(m.Tracks[key]);
+      const g = snapGap(t - end);
+      if (g < frameMs()) return;
+      pushUndo();
+      const tr = m.Tracks[key], last = tr[tr.length - 1];
+      if (last && last.Gap) { last.DurationMs += g; sel = { track: key, item: last }; }
+      else { const it = { Gap: true, DurationMs: g }; tr.push(it); sel = { track: key, item: it }; }
+      renderAll();
+    });
+    if (m) {
+      let t = 0;
+      m.Tracks[key].forEach((it, idx) => {
+        const b = document.createElement("div");
+        const isSel = sel && sel.item === it;
+        b.className = "tl-block mono" + (it.Gap ? " gap" : "") + (isSel ? " sel" : "");
+        b.style.left = (t * z + LANE_PAD) + "px";
+        b.style.width = Math.max(10, it.DurationMs * z - 1) + "px";
+        if (!it.Gap) b.style.background = p.color;
+        const kfNo = m.Tracks[key].slice(0, idx + 1).filter(x => !x.Gap).length;
+        b.innerHTML = (it.Gap ? `空白 ${fmtMs(it.DurationMs)}` : `KF#${String(kfNo).padStart(2, "0")}: ${fmtMs(it.DurationMs)}${it.Mode === 1 ? " 一気" : ""}${it.Pose ? " 座標" : ""}`) +
+          '<span class="h l"></span><span class="h r"></span>';
+        b.title = (it.Gap ? "空白（この間はこの部位を動かしません）" : "キーフレーム" + (it.Pose ? "（座標）" : "")) +
+          `\n開始 ${fmtMs(t)} / 長さ ${fmtMs(it.DurationMs)}（${frames(it.DurationMs)}コマ）\nドラッグ:移動 右端:長さ 左端:開始を詰める` + (it.Gap ? "" : " ダブルクリック:姿勢を反映");
+        b.addEventListener("mousedown", e => startDrag(e, key, it, e.target.classList.contains("r") ? "right" : e.target.classList.contains("l") ? "left" : "move"));
+        if (!it.Gap) b.addEventListener("dblclick", () => { sel = { track: key, item: it }; applyFrame(); renderAll(); });
+        lane.appendChild(b);
+        t += it.DurationMs;
+      });
+      if (!m.Tracks[key].length && key === TRACK_ORDER[0] && !PARTS.some(pp => m.Tracks[pp.key].length)) {
+        const h = document.createElement("div");
+        h.className = "sub"; h.style.cssText = "position:absolute; left:12px; top:8px; pointer-events:none";
+        h.textContent = "姿勢を作って「● 現在姿勢のキャプチャ」を押すと、ここにキーフレームが並びます。";
+        lane.appendChild(h);
+      }
+    }
+    box.appendChild(row);
+  });
+  $("txt-motion-len").textContent = m ? `全長 ${(Math.max(0, ...PARTS.map(p => trackLen(m.Tracks[p.key]))) / 1000).toFixed(2)} s` : "";
+  renderCursor();
+}
+
+// ---- ドラッグ（グリッド = FPS の1コマ × スナップ倍数 に合わせる） ----
+function startDrag(e, track, item, mode) {
+  if (e.button !== 0) return;
+  e.preventDefault(); e.stopPropagation();
+  sel = { track, item };
+  const tr = curM().Tracks[track];
+  const idx = tr.indexOf(item);
+  const prev = idx > 0 && tr[idx - 1].Gap ? tr[idx - 1] : null;
+  if (item.Gap && mode !== "right") mode = "right";      // 空白は長さだけ変える
+  const origStart = tr.slice(0, Math.max(0, idx)).reduce((a, x) => a + x.DurationMs, 0);
+  drag = { track, item, mode, x0: e.clientX, orig: item.DurationMs, origGap: prev ? prev.DurationMs : 0, origStart, index: idx, before: snapshot(), moved: false };
+  renderAll();
+}
+// ブロックを時刻 t へ移す（移動元は詰め、移動先は空白を割って入れる。他のブロックは押し下げる）
+function moveItemTo(tr, item, t) {
+  tr.splice(tr.indexOf(item), 1);
+  const L = trackLen(tr);
+  if (t >= L) {
+    if (t > L) tr.push({ Gap: true, DurationMs: t - L });
+    tr.push(item);
+  } else {
+    let acc = 0, i = 0;
+    while (i < tr.length && acc + tr[i].DurationMs <= t + 1e-6) { acc += tr[i].DurationMs; i++; }
+    const off = t - acc;
+    if (off < 1e-6) tr.splice(i, 0, item);
+    else if (tr[i].Gap) tr.splice(i, 1, { Gap: true, DurationMs: off }, item, { Gap: true, DurationMs: tr[i].DurationMs - off });
+    else tr.splice(off < tr[i].DurationMs / 2 ? i : i + 1, 0, item);   // キーフレームの中なら近い端に合わせる（割らない）
+  }
+  // 長さ0の空白を消し、隣り合う空白をまとめる
+  for (let k = tr.length - 1; k >= 0; k--) if (tr[k].Gap && tr[k].DurationMs < 1) tr.splice(k, 1);
+  for (let k = tr.length - 1; k > 0; k--) if (tr[k].Gap && tr[k - 1].Gap) { tr[k - 1].DurationMs += tr[k].DurationMs; tr.splice(k, 1); }
+}
+function setPrevGap(tr, item, g) {
+  const idx = tr.indexOf(item);
+  const prev = idx > 0 && tr[idx - 1].Gap ? tr[idx - 1] : null;
+  if (prev) { if (g <= 0) tr.splice(idx - 1, 1); else prev.DurationMs = g; }
+  else if (g > 0) tr.splice(idx, 0, { Gap: true, DurationMs: g });
+}
+function onDragMove(e) {
+  if (!drag) return;
+  const dms = (e.clientX - drag.x0) / settings.zoom;
+  if (Math.abs(e.clientX - drag.x0) > 2) drag.moved = true;
+  const tr = curM().Tracks[drag.track];
+  const minD = Math.max(MIN_FRAME_MS, frameMs());
+  let tip = "";
+  if (drag.mode === "right") {
+    drag.item.DurationMs = snapDur(drag.orig + dms);
+    tip = `長さ ${fmtMs(drag.item.DurationMs)}（${frames(drag.item.DurationMs)}コマ）`;
+  } else if (drag.mode === "move") {
+    // 開始位置を動かす。ドラッグ開始時の状態から組み直すので、行ったり来たりしても元に戻る
+    const T = snapGap(Math.max(0, drag.origStart + dms));
+    const base = JSON.parse(drag.before).motions[curMotion].Tracks[drag.track];
+    const moved = base[drag.index];
+    moveItemTo(base, moved, T);
+    curM().Tracks[drag.track] = base;
+    drag.item = moved; sel = { track: drag.track, item: moved };
+    tip = `開始 ${fmtMs(T)}`;
+  } else {
+    let g = snapGap(drag.origGap + dms);
+    const maxG = drag.origGap + drag.orig - minD;
+    if (g > maxG) g = snapGap(maxG - gridMs() / 2);
+    const d = Math.max(minD, drag.orig - (g - drag.origGap));
+    drag.item.DurationMs = d;
+    setPrevGap(tr, drag.item, g);
+    tip = `開始 +${fmtMs(g)} / 長さ ${fmtMs(d)}`;
+  }
+  const t = $("tl-drag-tip");
+  t.style.display = "block"; t.style.left = (e.clientX + 12) + "px"; t.style.top = (e.clientY - 24) + "px"; t.textContent = tip;
+  renderTimeline(); renderFrameBox();
+}
+function onDragEnd() {
+  if (!drag) return;
+  if (drag.moved) { undoStack.push(drag.before); redoStack.length = 0; setFilesDirty(true); }
+  drag = null;
+  $("tl-drag-tip").style.display = "none";
+  renderAll();
+}
+
+function renderFrameBox() {
+  const m = curM();
+  const it = m && sel ? sel.item : null;
+  const isGap = it && it.Gap;
+  if (it) {
+    const tr = m.Tracks[sel.track];
+    const no = tr.slice(0, tr.indexOf(it) + 1).filter(x => !x.Gap).length;
+    $("lbl-frame").textContent = `${partByKey(sel.track).short} ` + (isGap ? "空白" : `KF #${String(no).padStart(2, "0")}`);
+    $("num-frame-time").value = Math.round(it.DurationMs);
+    $("sel-frame-mode").value = String(it.Mode || 0);
+  } else $("lbl-frame").textContent = "---";
+  $("num-frame-time").disabled = !it;
+  $("sel-frame-mode").disabled = !it || isGap;
+  $("btn-frame-apply").disabled = $("btn-frame-update").disabled = !it || isGap;
+  $("btn-frame-delete").disabled = !it;
+}
+function renderAll() { renderMotionList(); renderTimeline(); renderFrameBox(); }
+
+function applyFrame() {
+  const m = curM(); if (!m || !sel || sel.item.Gap) return;
+  const kf = sel.item, p = partByKey(sel.track);
+  p.axes.forEach((i, j) => {
+    const v = kf.Angles[j];
+    if (v === -1) return;
+    if (v === 0) setFree(i, true); else { setFree(i, false); setAxisDeg(i, toDeg(v)); }
+    markDirty(i, true);
+  });
+  if (kf.Pose && p.foot !== undefined) { setPoseFields(p.key, kf.Pose); poseChanged(p.key, true); }
+}
+
+// ======================================================================
+// リアルタイム再生: PCからマイコンへ1コマずつ送る。
+//  マイコンが受け取った（ACKを返した）コマだけ次に進むので、通信が遅いときはスローになるが、全コマを順番どおり実行する。
+//  1コマ = 1周期(1000/fps ms)。周期より速くは送らない。
+// ======================================================================
+let realtimeFrames = null;    // 送っている全コマ（画面のスライダーを進めるために使う）
+
+// 時刻 t(ms) の各コマの値を作る（マイコンへの送信用・論理ICS / 座標）。補間は PCプレビューと同じ（smoothstep）。
+//  axes: 19軸の値（-1=触らない、0=FREE、それ以外=論理ICS）、poses: 座標指定の脚（IKはマイコン側）
+function sampleRealtime(m, f) {
+  const dt = 1000 / f;
+  const enabled = PARTS.filter(p => partEnabled[p.key]);
+  const total = Math.max(0, ...enabled.map(p => trackLen(m.Tracks[p.key])));
+  const n = Math.max(1, Math.round(total / dt) + 1);
+  const frames = Array.from({ length: n }, () => ({ axes: new Array(19).fill(-1), poses: [] }));
+  enabled.forEach(p => {
+    const tr = m.Tracks[p.key];
+    if (!tr.some(it => !it.Gap)) return;
+    let acc = 0, prevAng = p.axes.map(() => null), prevPose = null;
+    const segs = tr.map(it => {
+      const sg = { it, t0: acc, t1: acc + it.DurationMs, startAng: prevAng.slice(), startPose: prevPose };
+      if (!it.Gap) {
+        prevAng = p.axes.map((_, j) => (it.Angles[j] === -1 ? prevAng[j] : it.Angles[j]));
+        if (it.Pose) prevPose = it.Pose;
+      }
+      acc += it.DurationMs;
+      return sg;
+    });
+    for (let k = 0; k < n; k++) {
+      const t = k * dt;
+      if (segs.length && t > segs[segs.length - 1].t1 + 1e-6) continue;   // 終わった後は触らない（マイコンは直前の指令を保持）
+      const sg = segs.find(x => t < x.t1 - 1e-6) || segs[segs.length - 1];  // 終端ちょうどのコマは最後の目標を送る
+      if (sg.it.Gap) continue;                 // 空白: 触らない
+      const it = sg.it;
+      const x = Math.min(1, Math.max(0, (t - sg.t0) / Math.max(MIN_FRAME_MS, it.DurationMs)));
+      const e = it.Mode === 1 ? 1 : x * x * (3 - 2 * x);
+      if (it.Pose && p.foot !== undefined) {
+        const from = (it.Mode !== 1 && sg.startPose) ? sg.startPose : it.Pose;
+        const v = { foot: p.foot, ik: it.Pose.ik || 0 };
+        POSE_FIELDS.forEach(pf => v[pf.k] = from[pf.k] + (it.Pose[pf.k] - from[pf.k]) * e);
+        frames[k].poses.push(v);
+        continue;
+      }
+      p.axes.forEach((axis, j) => {
+        const to = it.Angles[j];
+        if (to === -1 || to === 0) { frames[k].axes[axis] = to; return; }
+        const st = sg.startAng[j];
+        frames[k].axes[axis] = (st === null || st === 0 || st === -1) ? to : Math.round(st + (to - st) * e);
+      });
+    }
+  });
+  return frames;
+}
+
+async function startRealtime() {
+  const m = curM();
+  if (!m) return alert("モーションを選択してください。");
+  if (!PARTS.some(p => m.Tracks[p.key].some(it => !it.Gap))) return alert("キーフレームがありません。");
+  if (!isTeach()) return alert("リアルタイム再生には、同期モード (TX) に切り替えてください。");
+  if (conn !== "connected") return alert("BLE未接続です。");
+  if (realtimeRunning) return;
+  const frames = sampleRealtime(m, fps);
+  const r = await call("realtime_play", frames, fps);
+  if (!r) return;                          // 開始できなかった理由はログに出ている
+  realtimeFrames = frames;
+  realtimeRunning = true;
+  logMsg(`[RT] リアルタイム再生を開始: ${frames.length} コマ（${fps}fps）`);
+}
+function stopRealtime() {
+  if (realtimeRunning) call("realtime_stop");
+}
+
+// 送信の進み具合（マイコンがACKを返したコマ数）を画面に反映
+function onRealtimeState(s) {
+  realtimeRunning = !!s.running;
+  const btn = $("btn-preview");
+  const status = $("txt-run-status");
+  if (s.running) {
+    btn.textContent = `■ 送信中 ${s.sent}/${s.total}`;
+    const t = s.sent > 0 ? (s.sent - 1) * 1000 / fps : 0;
+    const ph = $("tl-playhead");
+    ph.style.display = "block";
+    ph.style.left = (150 + t * settings.zoom + LANE_PAD) + "px";
+    if (realtimeFrames && s.sent > 0) applyRealtimeFrame(realtimeFrames[Math.min(s.sent, realtimeFrames.length) - 1]);
+    status.textContent = `リアルタイム再生中: ${s.sent}/${s.total} コマ（マイコンが受け取った順に実行）`;
+  } else {
+    btn.textContent = "▶ リアルタイム再生";
+    $("tl-playhead").style.display = "none";
+    realtimeFrames = null;
+    status.textContent = s.stopped ? `リアルタイム再生を中断しました（${s.sent}/${s.total} コマ送信）` : `リアルタイム再生が終わりました（${s.total} コマ）`;
+  }
+}
+// 画面のスライダーだけを動かす（送信のダーティフラグは立てない。二重送信を避ける）
+function applyRealtimeFrame(fr) {
+  fr.axes.forEach((v, i) => {
+    if (v === -1) return;
+    if (v === 0) { if (!ax[i].isFree) setFree(i, true); return; }
+    if (ax[i].isFree) setFree(i, false);
+    setAxisDeg(i, toDeg(v));
+  });
+  fr.poses.forEach(v => setPoseFields(v.foot === 0 ? "l_leg" : "r_leg", v));
+}
+
+// マイコンへの書き込みの進み具合
+function setMcuBusy(busy) {
+  $("btn-play-mcu").disabled = busy;
+  $("btn-play-mcu").textContent = busy ? "書き込み中…" : "⇩ マイコンに書き込んで再生";
+  $("prog-mcu").style.display = busy ? "block" : "none";
+  if (busy) { $("prog-mcu").value = 0; $("txt-run-status").textContent = "マイコンへ書き込み中（電源を切るまで保持されます）"; }
+}
+function setMcuProgress(pct) {
+  $("prog-mcu").value = pct;
+  $("btn-play-mcu").textContent = `書き込み中… ${pct}%`;
+  $("txt-run-status").textContent = `マイコンへ書き込み中: ${pct}%（終わると自動で再生します）`;
+}
+
+// ======================================================================
+// ポーズライブラリ（プリセットも含めて編集可。pose_library.json に自動保存）
+// ======================================================================
+function renderPoseLib() {
+  const box = $("pose-lib");
+  let h = "";
+  SECTIONS.forEach(sec => {
+    const items = poseLib.map((p, n) => ({ p, n })).filter(x => (x.p.section || "登録ポーズ") === sec);
+    if (!items.length) return;
+    h += `<div class="lib-sec">${sec}</div>`;
+    items.forEach(({ p, n }) => {
+      h += `<div class="preset" data-n="${n}" title="ダブルクリックで適用">
+              <div style="min-width:0"><div class="t">${escapeHtml(p.name)}</div><div class="sub">${escapeHtml(p.desc || partsOfPose(p))}</div></div>
+              <span class="btns"><button class="win-btn win-btn-primary win-btn-sm" data-apply="${n}">適用</button><button class="win-btn win-btn-sm" data-edit="${n}">変更</button></span></div>`;
+    });
+  });
+  box.innerHTML = h || '<div class="empty-hint">ポーズがありません。</div>';
+  box.querySelectorAll(".preset").forEach(el => el.addEventListener("dblclick", () => applyPose(poseLib[parseInt(el.dataset.n)])));
+  box.querySelectorAll("[data-apply]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); applyPose(poseLib[parseInt(b.dataset.apply)]); }));
+  box.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); openPoseDialog(parseInt(b.dataset.edit)); }));
+}
+const partsOfPose = p => [...new Set(Object.keys(p.values).map(i => partOf(parseInt(i)).short))].join("・");
+function applyPose(p) {
+  if (!isTeach()) logMsg("[POSE] 読取りモードのため画面上だけ反映します（ロボットへ送るには TX）。");
+  const parts = new Set();
+  Object.entries(p.values).forEach(([i, d]) => {
+    i = parseInt(i);
+    parts.add(partOf(i).key);
+    if (d === null) setFree(i, true); else { setFree(i, false); setAxisDeg(i, d); }
+    markDirty(i, true);
+  });
+  parts.forEach(k => setPartEnabled(k, true));
+  logMsg(`[POSE] 「${p.name}」を適用（${[...parts].map(k => partByKey(k).short).join("・")}）`);
+}
+
+let dlg = null;   // { index(-1=新規), values }
+function openPoseDialog(index) {
+  const p = index >= 0 ? poseLib[index] : { name: `Pose_${poseLib.length + 1}`, desc: "", section: "登録ポーズ", values: currentPoseValues(PARTS.filter(x => partEnabled[x.key]).map(x => x.key)) };
+  dlg = { index, values: { ...p.values } };
+  $("dlg-pose-title").textContent = index >= 0 ? "ポーズを編集" : "ポーズを登録";
+  $("dlg-pose-name").value = p.name;
+  $("dlg-pose-desc").value = p.desc || "";
+  $("dlg-pose-section").value = p.section || "登録ポーズ";
+  $("dlg-pose-delete").style.visibility = index >= 0 ? "visible" : "hidden";
+  const used = new Set(Object.keys(dlg.values).map(i => partOf(parseInt(i)).key));
+  $("dlg-pose-parts").innerHTML = PARTS.map(x => `<label style="display:flex;align-items:center;gap:2px"><input type="checkbox" data-dp="${x.key}" ${used.has(x.key) ? "checked" : ""}><span class="dot" style="background:${x.color}"></span>${x.short}</label>`).join("");
+  $("dlg-pose-parts").querySelectorAll("input").forEach(c => c.addEventListener("change", () => {
+    const pk = partByKey(c.dataset.dp);
+    if (c.checked) pk.axes.forEach(i => { if (!(i in dlg.values)) dlg.values[i] = ax[i].isFree ? null : Math.round(ax[i].deg * 10) / 10; });
+    else pk.axes.forEach(i => delete dlg.values[i]);
+    renderDlgVals();
+  }));
+  renderDlgVals();
+  $("dlg-pose").showModal();
+}
+function currentPoseValues(keys) {
+  const v = {};
+  keys.forEach(k => partByKey(k).axes.forEach(i => v[i] = ax[i].isFree ? null : Math.round(ax[i].deg * 10) / 10));
+  return v;
+}
+function renderDlgVals() {
+  const rows = Object.keys(dlg.values).map(Number).sort((a, b) => a - b)
+    .map(i => `<div style="display:flex;justify-content:space-between"><span>${AXIS_NAMES[i]}</span><span>${dlg.values[i] === null ? "FREE" : fmtDeg(dlg.values[i])}</span></div>`);
+  $("dlg-pose-vals").innerHTML = rows.join("") || '<span class="sub">部位が選ばれていません</span>';
+}
+
+// ======================================================================
+// イベント配線
+// ======================================================================
+function initEvents() {
+  $("btn-log").onclick = () => { const p = $("log-panel"); p.style.display = p.style.display === "flex" ? "none" : "flex"; };
+  $("btn-log-close").onclick = () => $("log-panel").style.display = "none";
+  $("btn-log-clear").onclick = () => $("log-text").value = "";
+
+  $("txt-ble-target").onchange = () => { settings.target = $("txt-ble-target").value.trim() || "ESP32_Robot"; saveSettings(); };
+  $("btn-ble").onclick = async () => {
+    if (conn === "connected") { await call("disconnect_ble"); return; }
+    if (conn !== "disconnected") return;
+    const name = $("txt-ble-target").value.trim() || "ESP32_Robot";
+    onConnection({ state: "connecting" });
+    const ok = await call("connect_target", name);
+    if (!ok) { const s = await call("get_connection_state"); if (s) onConnection(s); }
+  };
+  $("btn-mode-rx").onclick = async () => { if (mcuMode === MODE.TEACH) { stopRealtime(); await cmd("モード切替", "set_mode", false); } };
+  $("btn-mode-tx").onclick = async () => {
+    if (!protoOk) return alert("ファームとPCアプリの版が一致していません。");
+    if (mcuMode === MODE.ESTOP && !confirm("緊急停止中です。同期モード (TX) で手動操作しますか？")) return;
+    if (mcuMode !== MODE.TEACH) await cmd("モード切替", "set_mode", true);
+  };
+  $("btn-all-free").onclick = async () => {
+    if (conn !== "connected") return;
+    if (!isTeach()) {
+      if (!confirm("全軸FREEは同期モード (TX) で行います。TXに切り替えて全軸を脱力しますか？")) return;
+      if (!await cmd("モード切替", "set_mode", true)) return;
+    }
+    PARTS.forEach(p => setPartEnabled(p.key, true));
+    for (let i = 0; i < 19; i++) { setFree(i, true); markDirty(i, true); }
+  };
+  $("btn-estop").onclick = async () => {
+    stopRealtime();
+    if (conn !== "connected") return;
+    if (await cmd("緊急停止", "emergency_stop", 0x7FFFF)) logMsg("[MCU] 緊急停止を送信しました。");
+  };
+  $("btn-estop-clear").onclick = async () => {
+    if (!confirm("緊急停止を解除します。自律動作（コントローラ操作）が再開します。")) return;
+    if (await cmd("緊急停止解除", "emergency_clear")) logMsg("[MCU] 緊急停止を解除しました。");
+  };
+  document.querySelectorAll(".part-sel").forEach(b => b.onclick = e => selectPart(b.dataset.part, e.ctrlKey || e.metaKey || e.shiftKey));
+  renderPartButtons();
+
+  // ポーズライブラリ
+  $("btn-pose-add").onclick = () => openPoseDialog(-1);
+  $("btn-pose-reset").onclick = () => {
+    if (!confirm("プリセット（零点位置・攻撃準備位置など）を既定の値に戻します。登録ポーズは残ります。")) return;
+    poseLib = [...DEFAULT_PRESETS(), ...poseLib.filter(p => !p.builtin)];
+    savePoseLib(); renderPoseLib(); logMsg("[POSE] プリセットを既定に戻しました。");
+  };
+  $("dlg-pose-capture").onclick = () => {
+    const keys = [...$("dlg-pose-parts").querySelectorAll("input:checked")].map(c => c.dataset.dp);
+    if (!keys.length) return alert("対象部位を選んでください。");
+    dlg.values = currentPoseValues(keys);
+    renderDlgVals();
+  };
+  $("dlg-pose-cancel").onclick = () => $("dlg-pose").close();
+  $("dlg-pose-ok").onclick = () => {
+    const name = $("dlg-pose-name").value.trim();
+    if (!name) return alert("名前を入力してください。");
+    if (!Object.keys(dlg.values).length) return alert("対象部位を1つ以上選んでください。");
+    const entry = { name, desc: $("dlg-pose-desc").value.trim(), section: $("dlg-pose-section").value, values: dlg.values };
+    if (dlg.index >= 0) poseLib[dlg.index] = { ...poseLib[dlg.index], ...entry };
+    else poseLib.push({ id: `user_${Date.now()}`, builtin: false, ...entry });
+    savePoseLib(); renderPoseLib(); $("dlg-pose").close();
+    logMsg(`[POSE] 「${name}」を保存しました。`);
+  };
+  $("dlg-pose-delete").onclick = () => {
+    if (dlg.index < 0) return;
+    const p = poseLib[dlg.index];
+    if (!confirm(`「${p.name}」を削除しますか？` + (p.builtin ? "\n（プリセットは「プリセットを既定に」で戻せます）" : ""))) return;
+    poseLib.splice(dlg.index, 1); savePoseLib(); renderPoseLib(); $("dlg-pose").close();
+  };
+
+  // 校正（ウィンドウ内だけ）
+  $("btn-calib-read").onclick = readCalib;
+  $("btn-calib-write").onclick = writeCalib;
+  $("btn-calib-pose").onclick = zeroPose;
+  renderCalibList();
+
+  // モーション
+  $("btn-motion-new").onclick = async () => {
+    const r = await editMotionDialog("新規モーション", uniqueName("Motion"), "", null);
+    if (!r) return;
+    pushUndo();
+    motions.push({ Name: r.name, Desc: r.desc, Tracks: emptyTracks() });
+    curMotion = motions.length - 1; sel = null; renderAll();
+  };
+  $("btn-motion-rename").onclick = async () => {
+    const m = curM(); if (!m) return;
+    const r = await editMotionDialog("名前・説明", m.Name, m.Desc || "", m);
+    if (r && (r.name !== m.Name || r.desc !== (m.Desc || ""))) { pushUndo(); m.Name = r.name; m.Desc = r.desc; renderAll(); }
+  };
+  $("btn-motion-dup").onclick = () => {
+    const m = curM(); if (!m) return;
+    pushUndo();
+    const c = JSON.parse(JSON.stringify(m)); c.Name = uniqueName(m.Name + "_copy");
+    motions.splice(curMotion + 1, 0, c); curMotion++; sel = null; renderAll();
+  };
+  $("btn-export").onclick = exportHeader;
+  $("btn-motion-delete").onclick = () => {
+    const m = curM(); if (!m) return;
+    if (!confirm(`「${m.Name}」を削除しますか？（元に戻す: Ctrl+Z）`)) return;
+    pushUndo();
+    motions.splice(curMotion, 1); curMotion = Math.min(curMotion, motions.length - 1); sel = null; renderAll();
+  };
+  $("btn-file-save").onclick = saveMotions;
+  $("btn-file-load").onclick = async () => {
+    if (filesDirty && !confirm("未保存の変更があります。読み込むと失われます。続けますか？")) return;
+    const r = await call("load_text_file"); if (!r) return;
+    try {
+      const d = JSON.parse(r.text);
+      if (d.format !== "robot-motions" || !Array.isArray(d.motions)) throw new Error("形式が違います");
+      if (d.units !== "logical-ics") alert("旧形式（生ICS）の可能性があります。角度がオフセット分ずれます。");
+      motions = d.motions.map(m => m.Tracks ? m : convertV2(m));
+      const renamed = fixMotionNames();
+      if (renamed.length) {
+        setTimeout(() => setFilesDirty(true), 0);
+        logMsg(`[FILE] C++ の名前に使えないモーション名を変更しました（元の名前は説明文へ）: ${renamed.join(", ")}`);
+        alert(`C++ の名前に使えないモーション名を ${renamed.length} 件変更しました。\n元の名前は説明文に移しています。\n\n` + renamed.join("\n"));
+      }
+      if ((d.version || 0) < 3) logMsg("[FILE] 旧形式（全身キーフレーム）を部位トラックへ変換しました。");
+      if (Array.isArray(d.poses) && d.poses.length && confirm(`このファイルには登録ポーズが ${d.poses.length} 件含まれています。ポーズライブラリに追加しますか？`)) {
+        d.poses.forEach(p => poseLib.push({ id: `user_${Date.now()}_${Math.random()}`, builtin: false, section: "登録ポーズ", ...p }));
+        savePoseLib(); renderPoseLib();
+      }
+      curMotion = motions.length ? 0 : -1; sel = null; undoStack.length = redoStack.length = 0; setFilesDirty(false); renderAll();
+      logMsg(`[FILE] ${r.fileName} から ${motions.length} 件読み込みました。`);
+    } catch (e) { alert("読み込めませんでした: " + e.message); }
+  };
+  $("btn-file-merge").onclick = mergeMotionFile;
+
+  // 再生
+  $("btn-preview").onclick = startRealtime;
+  $("btn-preview-stop").onclick = () => stopRealtime();
+  $("btn-play-mcu").onclick = async () => {
+    const m = curM();
+    if (conn !== "connected") return alert("BLE未接続です。");
+    if (!protoOk) return alert("ファームとPCアプリの版が一致していません。");
+    if (!m) return alert("モーションを選択してください。");
+    const fr = flatten(m);
+    if (!fr.some(f => f.Angles.some(v => v !== -1 && v !== -2) || Object.keys(f.Poses).length)) return alert("キーフレームがありません。");
+    if (fr.length > 100) return alert(`マイコン転送は合計100ブロック（空白を含む）までです（現在 ${fr.length}）。`);
+    stopRealtime();
+    logMsg(`[MCU] 転送開始: ${fr.length} フレーム`);
+    await call("upload_and_play", fr);
+  };
+
+  // 選択ブロック
+  $("num-frame-time").onchange = () => {
+    const m = curM(); if (!m || !sel) return;
+    pushUndo();
+    sel.item.DurationMs = Math.min(65535, snapDur(parseFloat($("num-frame-time").value) || 500));
+    renderAll();
+  };
+  $("sel-frame-mode").onchange = () => {
+    const m = curM(); if (!m || !sel || sel.item.Gap) return;
+    pushUndo();
+    sel.item.Mode = parseInt($("sel-frame-mode").value) === 1 ? 1 : 0;
+    renderAll();
+  };
+  $("btn-frame-apply").onclick = () => applyFrame();
+  $("btn-frame-update").onclick = () => {
+    const m = curM(); if (!m || !sel || sel.item.Gap) return;
+    pushUndo();
+    const p = partByKey(sel.track), kf = sel.item;
+    kf.Angles = p.axes.map(axisValue);
+    if (p.foot !== undefined) { if (poseDriven[p.key] && poseUI[p.key].ready) kf.Pose = getPoseFields(p.key); else delete kf.Pose; }
+    logMsg(`[KF] ${p.short} のキーフレームを上書きしました。`);
+    renderAll();
+  };
+  $("btn-frame-delete").onclick = deleteSelected;
+
+  // タイムライン
+  $("btn-capture").onclick = capture;
+  $("btn-gap").onclick = addGap;
+  $("btn-undo").onclick = undo;
+  $("btn-redo").onclick = redo;
+  $("btn-tl-clear").onclick = () => {
+    const m = curM(); if (!m) return;
+    if (confirm("このモーションの全トラックを消去しますか？（元に戻す: Ctrl+Z）")) { pushUndo(); m.Tracks = emptyTracks(); sel = null; renderAll(); }
+  };
+  $("tl-zoom").oninput = () => { settings.zoom = parseFloat($("tl-zoom").value); saveSettings(); renderTimeline(); };
+  $("sel-snap").onchange = () => { settings.snap = parseInt($("sel-snap").value) || 1; saveSettings(); renderTimeline(); };
+  $("num-capture-ms").onchange = () => {
+    const v = snapDur(parseFloat($("num-capture-ms").value) || 500);
+    $("num-capture-ms").value = Math.round(v); settings.captureMs = v; saveSettings();
+  };
+  $("tl-scroll").addEventListener("wheel", e => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    settings.zoom = Math.max(0.05, Math.min(0.8, settings.zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+    $("tl-zoom").value = settings.zoom; saveSettings(); renderTimeline();
+  }, { passive: false });
+  document.addEventListener("mousemove", onDragMove);
+  document.addEventListener("mouseup", onDragEnd);
+  for (const id of ["tl-scrub", "tl-ruler-lane"]) {
+    $(id).addEventListener("mousedown", e => { if (e.button !== 0) return; rulerScrubbing = true; scrubCursorTo(e.clientX); e.preventDefault(); });
+  }
+  document.addEventListener("mousemove", e => { if (rulerScrubbing) scrubCursorTo(e.clientX); });
+  document.addEventListener("mouseup", () => { rulerScrubbing = false; });
+
+  // キーボード
+  document.addEventListener("keydown", e => {
+    const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== "range" && document.activeElement.type !== "checkbox";
+    if ($("dlg-pose").open || $("dlg-motion").open) return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); saveMotions(); return; }
+    if (typing) return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
+    else if (e.key === "Delete" || e.key === "Backspace") { if (sel) { e.preventDefault(); deleteSelected(); } }
+    else if (e.key === " ") { e.preventDefault(); realtimeRunning ? stopRealtime() : startRealtime(); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); setCursor(snapGap(cursorMs + (e.key === "ArrowLeft" ? -1 : 1) * gridMs())); }
+    else if (e.key === "Escape") { sel = null; renderAll(); }
+  });
+  window.addEventListener("beforeunload", e => { if (filesDirty) { e.preventDefault(); e.returnValue = ""; } });
+}
+
+// ======================================================================
+// モーション名（そのまま C++ の namespace 名になる）と説明文
+// ======================================================================
+const NAME_RE = /^[A-Za-z_][A-Za-z0-9_]{0,62}$/;
+// 書き出し時は main.py が予約語・ファーム内の名前まで確認する。ここでは文字種と重複を見る。
+function nameErrorLocal(name, self) {
+  if (!name) return "名前が空です。";
+  if (!NAME_RE.test(name)) return "英字・数字・_ だけで、先頭は英字か _ にしてください（63文字まで）。";
+  if (motions.some(m => m !== self && m.Name === name)) return "同じ名前のモーションがあります。";
+  return null;
+}
+async function nameError(name, self) {
+  const e = nameErrorLocal(name, self);
+  if (e) return e;
+  const r = await call("check_motion_name", name);
+  return typeof r === "string" ? r : null;
+}
+// taken: まだ motions に入っていない名前（統合で追加する分）も避けるための一覧
+function uniqueName(base, taken = []) {
+  base = String(base).replace(/[^A-Za-z0-9_]/g, "_").replace(/^([0-9])/, "_$1") || "Motion";
+  const free = n => !nameErrorLocal(n, null) && !taken.includes(n);
+  if (free(base) && !/^Motion$/.test(base)) return base;
+  for (let i = 1; ; i++) { const n = `${base}_${i}`; if (free(n)) return n; }
+}
+// 読み込んだファイルで C++ に使えない名前を直す（元の名前は説明文へ）
+function fixMotionNames() {
+  const out = [];
+  motions.forEach(m => {
+    if (m.Desc === undefined) m.Desc = "";
+    if (!nameErrorLocal(m.Name, m)) return;
+    const old = m.Name;
+    const ascii = String(old || "").replace(/[^A-Za-z0-9_]/g, "_").replace(/_+/g, "_").replace(/^_+|_+$/g, "");
+    m.Name = "\u0000";                                      // 自分自身との重複判定を外す
+    m.Name = uniqueName(/[A-Za-z]/.test(ascii) ? ascii : "Motion");
+    if (!m.Desc) m.Desc = old;
+    out.push(`${old} → ${m.Name}`);
+  });
+  return out;
+}
+function editMotionDialog(title, name, desc, self) {
+  return new Promise(resolve => {
+    const dlg = $("dlg-motion");
+    $("dlg-motion-title").textContent = title;
+    $("dlg-motion-name").value = name; $("dlg-motion-desc").value = desc; $("dlg-motion-err").textContent = "";
+    const check = () => { const e = nameErrorLocal($("dlg-motion-name").value.trim(), self); $("dlg-motion-err").textContent = e || ""; return !e; };
+    $("dlg-motion-name").oninput = check;
+    const done = v => { dlg.close(); resolve(v); };
+    $("dlg-motion-cancel").onclick = () => done(null);
+    dlg.oncancel = e => { e.preventDefault(); done(null); };
+    $("dlg-motion-ok").onclick = async () => {
+      const n = $("dlg-motion-name").value.trim();
+      const e = await nameError(n, self);
+      if (e) { $("dlg-motion-err").textContent = e; return; }
+      done({ name: n, desc: $("dlg-motion-desc").value.trim() });
+    };
+    dlg.showModal(); check(); $("dlg-motion-name").select();
+  });
+}
+
+// ======================================================================
+// ファーム用エクスポート（ExportData.h）: アプリデータ(.json)の保存とは別
+//  タイムラインを 1制御周期(1000/fps ms) ごとの値に展開する。補間は PCプレビューと同じ（なめらか=smoothstep）。
+//  値は論理ICS。-1 = 触らない（空白・未使用の部位）、0 = FREE。
+//  ・各部位の最初のキーフレームは開始位置が分からないので、最初から目標値を出す（サーボの最高速度で向かう）。
+//  ・座標(IK)のキーフレームは、キャプチャ時の関節角で補間する（足先の直線補間はしない）。
+// ======================================================================
+function sampleMotion(m, f) {
+  const dt = 1000 / f;
+  const total = Math.max(0, ...PARTS.map(p => trackLen(m.Tracks[p.key])));
+  const n = Math.max(1, Math.round(total / dt) + 1);
+  const rows = Array.from({ length: n }, () => new Array(19).fill(-1));
+  PARTS.forEach(p => {
+    const tr = m.Tracks[p.key];
+    if (!tr.some(it => !it.Gap)) return;
+    let acc = 0, prev = p.axes.map(() => null);
+    const segs = tr.map(it => {
+      const sg = { it, t0: acc, t1: acc + it.DurationMs, start: prev.slice() };
+      if (!it.Gap) prev = p.axes.map((_, j) => (it.Angles[j] === -1 ? prev[j] : it.Angles[j]));
+      acc += it.DurationMs;
+      return sg;
+    });
+    const last = prev;
+    for (let k = 0; k < n; k++) {
+      const t = k * dt;
+      const sg = segs.find(x => t < x.t1 - 1e-6);
+      if (!sg) { p.axes.forEach((a, j) => { if (last[j] !== null) rows[k][a] = last[j]; }); continue; }   // 終了後: 最後の目標を保持
+      if (sg.it.Gap) continue;                                                                            // 空白: -1（そのまま保持）
+      const it = sg.it;
+      const x = Math.min(1, Math.max(0, (t - sg.t0) / Math.max(MIN_FRAME_MS, it.DurationMs)));
+      const e = it.Mode === 1 ? 1 : x * x * (3 - 2 * x);
+      p.axes.forEach((a, j) => {
+        const v = it.Angles[j], st = sg.start[j];
+        if (v === -1 || v === 0) { rows[k][a] = v; return; }
+        rows[k][a] = (st === null || st === 0) ? v : Math.round(st + (v - st) * e);
+      });
+    }
+  });
+  return rows;
+}
+const hasKeyframes = m => PARTS.some(p => m.Tracks[p.key].some(it => !it.Gap));
+// 可動範囲（マイコンの ICS 範囲。main.py の OFFSET_MIN/MAX と同じ）。0=FREE, -1=触らない は範囲外ではない
+const LOGICAL_MIN = 3500, LOGICAL_MAX = 11500;
+const outOfRange = v => v !== -1 && v !== 0 && (v < LOGICAL_MIN || v > LOGICAL_MAX);
+// 範囲外の一覧を出して選ばせる。[キャンセル] → false、[自動修正して保存] → true
+function askOutOfRange(bad) {
+  const lines = bad.map(b => `・「${b.name}」<br>` + b.axes.map(a => `　${AXIS_NAMES[a.i]}: ${a.n} コマ`).join("<br>")).join("<br>");
+  return new Promise(res => {
+    window.appOverlay(`<b>可動範囲外の値があります</b><br>${lines}<br><br>` +
+      `範囲外の値は <b>-1（触らない）</b> に置き換えてから書き出します。<br>` +
+      `（範囲: ${LOGICAL_MIN}〜${LOGICAL_MAX}）`,
+      [["キャンセル", "", () => res(false)], ["自動修正して保存", "win-btn-primary", () => res(true)]]);
+  });
+}
+
+async function exportHeader() {
+  const list = motions.filter(hasKeyframes);
+  if (!list.length) return alert("エクスポートできるモーション（キーフレームのあるもの）がありません。");
+  for (const m of list) {
+    const e = await nameError(m.Name, m);
+    if (e) return alert(`モーション名「${m.Name}」: ${e}\n「名前・説明」で直してから、もう一度エクスポートしてください。`);
+  }
+  const skipped = motions.filter(m => !hasKeyframes(m)).map(m => m.Name);
+  // モーションは論理ICSなので、校正値（CalibData.h）とは別に書き出せる（接続していなくてもよい）
+  const payload = { fps, lastPath: settings.exportPath || "",
+    motions: list.map(m => ({ name: m.Name, desc: m.Desc || "", rows: sampleMotion(m, fps) })) };
+  // 可動範囲外の値は、確認のうえ -1（触らない）に置き換えて書き出す
+  const bad = payload.motions.map(mo => {
+    const perAxis = {};                       // 軸ごとのコマ数
+    let count = 0;
+    mo.rows.forEach(row => row.forEach((v, i) => { if (outOfRange(v)) { count++; perAxis[i] = (perAxis[i] || 0) + 1; } }));
+    return { name: mo.name, count, axes: Object.entries(perAxis).map(([i, n]) => ({ i: +i, n })).sort((a, b) => a.i - b.i) };
+  }).filter(b => b.count);
+  let fixed = 0;
+  if (bad.length) {
+    if (!await askOutOfRange(bad)) return;
+    payload.motions.forEach(mo => mo.rows = mo.rows.map(row => row.map(v => { if (!outOfRange(v)) return v; fixed++; return -1; })));
+  }
+  const r = await call("export_header", payload);
+  if (!r || r.cancel) return;
+  if (!r.ok) return alert("エクスポートできませんでした: " + r.text);
+  settings.exportPath = r.path; saveSettings();
+  if (skipped.length) logMsg(`[EXPORT] キーフレームが無いので書き出していません: ${skipped.join(", ")}`);
+  if (fixed) logMsg(`[EXPORT] 可動範囲外の値 ${fixed} 個を -1（触らない）に置き換えて書き出しました。`);
+  alert((r.result === "unchanged" ? "ExportData.h は今の内容と同じでした。" : `ExportData.h に ${list.length} 件のモーションを書き出しました。`) +
+    (fixed ? `
+（可動範囲外の値 ${fixed} 個は -1 に置き換えました）` : "") +
+    `\n\nファームをビルドして書き込むと反映されます。\n使うときは Motion.h で\n  DECLARE_DATA_MOTION(クラス名, ${list[0].Name}, 部位ビット)\nのように宣言してください。`);
+}
+
+// ======================================================================
+// 校正ウィンドウ（構成データの読み書きはここだけ）
+//  一覧 = calibNow（接続中はロボットの値、未接続ではファイルを読んだ値）。
+//  数値は直接打ち込める。Enterで反映、Escで戻す。
+// ======================================================================
+const CALIB_OFF_MIN = 3500, CALIB_OFF_MAX = 11500;   // src/CalibData.h・firmware と同じ範囲
+
+function markCalibLocal(name) {
+  $("txt-calib-state").textContent = name ? `ファイル: ${name}` : "ファイルの値（未接続で編集中）";
+}
+
+function renderCalibList() {
+  const body = $("calib-list");
+  if (!body) return;
+  const c = calibNow, has = !!c;
+  body.replaceChildren();
+  const numberInput = (value, min, max, step, onCommit) => {
+    const num = document.createElement("input");
+    num.type = "number"; num.className = "win-input mono";
+    num.min = min; num.max = max; num.step = step;
+    num.value = value; num.disabled = !has;
+    num.addEventListener("keydown", e => {
+      if (e.key === "Enter") num.blur();
+      else if (e.key === "Escape") { num.value = value; num.blur(); }
+    });
+    num.addEventListener("change", () => onCommit(num));
+    return num;
+  };
+  const cell = (content, align) => {
+    const td = document.createElement("td");
+    if (align) td.style.textAlign = align;
+    if (typeof content === "string") td.textContent = content; else td.appendChild(content);
+    return td;
+  };
+  for (let i = 0; i < 19; i++) {
+    const tr = document.createElement("tr");
+    const off = has ? c.offsets[i] : "";
+    const dev = has ? c.offsets[i] - 7500 : null;
+    tr.append(cell(`[${i}]`), cell(AXIS_NAMES[i]),
+      cell(numberInput(off, CALIB_OFF_MIN, CALIB_OFF_MAX, 1, num => setCalibOffset(i, num))),
+      cell(dev === null ? "-" : `${dev >= 0 ? "+" : ""}${dev}`));
+    body.appendChild(tr);
+  }
+  [["footL", "左脚 高さ補正 [mm]"], ["footR", "右脚 高さ補正 [mm]"]].forEach(([key, label]) => {
+    const tr = document.createElement("tr");
+    const td = cell(label); td.colSpan = 2;
+    const v = has ? c[key].toFixed(1) : "";
+    tr.append(td, cell(numberInput(v, -100, 100, 0.1, num => setCalibFootdef(key, num))), cell(""));
+    body.appendChild(tr);
+  });
+}
+
+async function setCalibOffset(i, num) {
+  if (!calibNow) return;
+  const v = Number(num.value);
+  if (!Number.isInteger(v) || v < CALIB_OFF_MIN || v > CALIB_OFF_MAX) {
+    alert(`${AXIS_NAMES[i]}: オフセットは ${CALIB_OFF_MIN}〜${CALIB_OFF_MAX} の整数で入力してください。`);
+    return renderCalibList();
+  }
+  if (v === calibNow.offsets[i]) return;
+  if (conn === "connected") {
+    if (!await cmd("オフセット", "cal_set_offset", i, v)) renderCalibList();   // 成功時の反映は CALIB の受信で行う
+    return;
+  }
+  calibNow.offsets[i] = v; renderCalibList(); markCalibLocal();
+}
+
+async function setCalibFootdef(key, num) {
+  if (!calibNow) return;
+  const v = Number(num.value);
+  if (!Number.isFinite(v) || Math.abs(v) > 100) {
+    alert("-100〜100 [mm] で入力してください。");
+    return renderCalibList();
+  }
+  const l = key === "footL" ? v : calibNow.footL, r = key === "footR" ? v : calibNow.footR;
+  if (l === calibNow.footL && r === calibNow.footR) return;
+  if (conn === "connected") {
+    if (!await cmd("左右差補正", "cal_set_footdef", l, r)) renderCalibList();
+    return;
+  }
+  calibNow.footL = l; calibNow.footR = r; renderCalibList(); markCalibLocal();
+}
+
+// 読み込み: CalibData.h を開く。接続中ならロボットへ全値を送り、未接続なら画面の値にする（書き込みで保存する）
+async function readCalib() {
+  const f = await call("load_calib_file");
+  if (!f) return;
+  const r = await call("calib_parse", f.text);
+  if (!r || !r.ok) return alert(r ? r.text : "CalibData.h を読めませんでした。");
+  if (conn === "connected") {
+    if (!await cmd("読み込み", "cal_set_all", r.calib)) return;   // 成功時の反映は CALIB の受信で行う
+  } else {
+    calibNow = { offsets: r.calib.offsets.slice(), footL: r.calib.footL, footR: r.calib.footR };
+    renderCalibList(); markCalibLocal(f.fileName);
+  }
+  logMsg(`[CALIB] ${f.fileName} を読み込みました。`);
+}
+
+// 書き込み: 一覧の校正値を CalibData.h に書き出す（ビルドして書き込むと反映）
+async function writeCalib() {
+  if (!calibNow) return alert("校正値がありません。ロボットに接続するか、「読み込み」で CalibData.h を開いてください。");
+  const r = await call("export_calib", { calib: calibNow });
+  if (!r || r.cancel) return;
+  if (!r.ok) return alert("書き出せませんでした: " + r.text);
+  alert(r.result === "unchanged" ? "CalibData.h は今の内容と同じでした。" : "CalibData.h に校正値を書き出しました。\n\nファームをビルドして書き込むと反映されます。");
+}
+
+// 現在姿勢でオフセット: 全軸の今の姿勢を中立(7500)にする（接続中のみ）
+async function zeroPose() {
+  if (conn !== "connected") return alert("ロボットに接続してから使ってください（今の姿勢を読むため）。");
+  if (!confirm("全軸の今の姿勢を中立(7500)にします。ロボットは動きません。\n書き込みしてビルドするまでは、再起動で元に戻ります。")) return;
+  if (await cmd("現在姿勢でオフセット", "cal_zero_all")) logMsg("[CALIB] 全軸を今の姿勢で中立にしました。");
+}
+
+async function saveMotions() {
+  const text = JSON.stringify({ format: "robot-motions", version: 5, units: "logical-ics", fps, motions }, null, 1);
+  const n = await call("save_text_file", "motions.json", text);
+  if (n) { setFilesDirty(false); logMsg(`[FILE] ${n} に保存しました。`); }
+}
+
+// ---- 統合: 別の JSON のモーションを1件ずつ今のモーションに追加する ----
+// 比較用: キーの順番に左右されない文字列にする
+function canonJson(v) {
+  if (Array.isArray(v)) return "[" + v.map(canonJson).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canonJson(v[k])).join(",") + "}";
+  return JSON.stringify(v);
+}
+const sameTracks = (a, b) => canonJson(a) === canonJson(b);
+const motionLen = m => Math.max(0, ...PARTS.map(p => trackLen(m.Tracks[p.key])));
+
+// 同名で中身が違うときに聞く。戻り値: {action: "keep"|"replace"|"rename", applyAll} / 中止は null
+function askMergeConflict(ex, inc, suggested) {
+  return new Promise(resolve => {
+    const dlg = $("dlg-merge");
+    const diffParts = PARTS.filter(p => canonJson(ex.Tracks[p.key]) !== canonJson(inc.Tracks[p.key])).map(p => p.short);
+    $("dlg-merge-name").textContent = inc.Name;
+    $("dlg-merge-len-ex").textContent = fmtMs(motionLen(ex));
+    $("dlg-merge-len-in").textContent = fmtMs(motionLen(inc));
+    $("dlg-merge-desc-ex").textContent = ex.Desc || "（なし）";
+    $("dlg-merge-desc-in").textContent = inc.Desc || "（なし）";
+    $("dlg-merge-parts").textContent = diffParts.join("、");
+    $("dlg-merge-newname").textContent = suggested;
+    $("dlg-merge-all").checked = false;
+    const done = action => { dlg.close(); resolve(action && { action, applyAll: $("dlg-merge-all").checked }); };
+    $("dlg-merge-cancel").onclick = () => done(null);
+    $("dlg-merge-keep").onclick = () => done("keep");
+    $("dlg-merge-rename").onclick = () => done("rename");
+    $("dlg-merge-replace").onclick = () => done("replace");
+    dlg.oncancel = e => { e.preventDefault(); done(null); };
+    dlg.showModal();
+  });
+}
+
+async function mergeMotionFile() {
+  const r = await call("load_text_file");
+  if (!r) return;
+  let d;
+  try { d = JSON.parse(r.text); } catch (e) { return alert("統合できませんでした: JSON として読めません。"); }
+  if (d.format !== "robot-motions" || !Array.isArray(d.motions)) return alert("統合できませんでした: モーション JSON ではありません。");
+  if (d.units !== "logical-ics") return alert("統合できませんでした: 旧形式（生ICS）のファイルです。読込で開いて保存し直してから統合してください。");
+  const incoming = d.motions.map(m => m.Tracks ? m : convertV2(m));
+
+  // 結果は作業用の一覧に積み、最後にまとめて反映する（中止したら何も変わらない）
+  const next = motions.slice();
+  const taken = () => next.map(m => m.Name);
+  const count = { add: 0, same: 0, keep: 0, replace: 0, rename: 0 };
+  const sameNames = [];
+  let applyAll = null;
+  for (const inc of incoming) {
+    const oldName = inc.Name;
+    const name = NAME_RE.test(oldName) ? oldName : uniqueName(oldName, taken());   // C++ で使えない名前は読込と同じく直す
+    const m = { Name: name, Desc: inc.Desc || (name !== oldName ? oldName : ""), Tracks: inc.Tracks };
+    const idx = next.findIndex(x => x.Name === name);
+    if (idx < 0) { next.push(m); count.add++; continue; }
+    if (sameTracks(next[idx].Tracks, m.Tracks)) { count.same++; sameNames.push(name); continue; }   // 同一なので1件にまとめる
+
+    let act = applyAll;
+    if (!act) {
+      const c = await askMergeConflict(next[idx], m, uniqueName(name, taken()));
+      if (!c) { logMsg("[MERGE] 統合を中止しました。モーションは変更していません。"); return; }
+      act = c.action;
+      if (c.applyAll) applyAll = act;
+    }
+    if (act === "keep") count.keep++;
+    else if (act === "replace") { next[idx] = m; count.replace++; }
+    else { next.push({ ...m, Name: uniqueName(name, taken()) }); count.rename++; }
+  }
+
+  if (!count.add && !count.replace && !count.rename) {
+    logMsg(`[MERGE] ${r.fileName}: 変更はありません（同一 ${count.same} 件 / 残した ${count.keep} 件）`);
+    return alert("追加・変更はありませんでした。");
+  }
+  pushUndo();
+  motions = next;
+  if (curMotion < 0 && motions.length) curMotion = 0;
+  sel = null; renderAll();
+  logMsg(`[MERGE] ${r.fileName} を統合しました: 追加 ${count.add} / 同一のため1件にまとめた ${count.same} / 今のものを残した ${count.keep} / 置き換え ${count.replace} / 別名で追加 ${count.rename}`
+    + (sameNames.length ? `（同一: ${sameNames.join(", ")}）` : ""));
+}
+
+// v2（全身キーフレーム）→ v3以降（部位トラック）
+function convertV2(m) {
+  const T = emptyTracks();
+  (m.Keyframes || []).forEach(kf => {
+    PARTS.forEach(p => {
+      const vals = p.axes.map(i => kf.Angles[i] === undefined ? -1 : kf.Angles[i]);
+      const pose = p.foot !== undefined && kf.Poses ? kf.Poses[p.foot === 0 ? "left" : "right"] : null;
+      if (vals.every(v => v === -1) && !pose) { T[p.key].push({ Gap: true, DurationMs: kf.DurationMs }); return; }   // 旧形式の「その部位は止めたまま」は空白にする
+      const k = { DurationMs: kf.DurationMs, Mode: kf.Mode, Angles: vals };
+      if (pose) k.Pose = pose;
+      T[p.key].push(k);
+    });
+  });
+  PARTS.forEach(p => { const tr = T[p.key]; while (tr.length && tr[tr.length - 1].Gap) tr.pop(); });   // 末尾の空白は不要
+  return { Name: m.Name, Tracks: T };
+}
+
+// ======================================================================
+// 起動
+// ======================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  buildServoUI();
+  buildIkPanel();
+  initEvents();
+  renderPoseLib();
+  renderLegCompare();
+  renderAll();
+  onConnection({ state: "disconnected" });
+});
+
+// ======================================================================
+// 詳細ウィンドウ（ドラッグで移動、×で閉じる。開いたまま本画面も操作できる）
+// ======================================================================
+let winZ = 50;
+function bringFront(w) { w.style.zIndex = ++winZ; }
+function setWinOpen(id, open) {
+  const w = $(id); if (!w) return;
+  w.classList.toggle("open", open);
+  document.querySelectorAll(`[data-win="${id}"]`).forEach(b => b.classList.toggle("on", open));
+  if (open) { bringFront(w); clampWin(w); if (id === "win-compare") renderLegCompare(); }
+}
+function clampWin(w) {
+  const r = w.getBoundingClientRect();
+  w.style.left = Math.max(0, Math.min(window.innerWidth - Math.min(r.width, 120), r.left)) + "px";
+  w.style.top = Math.max(0, Math.min(window.innerHeight - 30, r.top)) + "px";
+}
+function initWindows() {
+  document.querySelectorAll("[data-win]").forEach(b => b.addEventListener("click", () => setWinOpen(b.dataset.win, !$(b.dataset.win).classList.contains("open"))));
+  document.querySelectorAll(".fwin").forEach(w => {
+    const pos = settings.wins && settings.wins[w.id];
+    if (pos) { w.style.left = pos.x + "px"; w.style.top = pos.y + "px"; }
+    w.addEventListener("mousedown", () => bringFront(w));
+    w.querySelector("[data-close]").addEventListener("click", () => setWinOpen(w.id, false));
+    const bar = w.querySelector(".fwin-title");
+    bar.addEventListener("mousedown", e => {
+      if (e.target.closest("button")) return;
+      const r = w.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+      const mv = ev => { w.style.left = Math.max(0, Math.min(window.innerWidth - 120, ev.clientX - dx)) + "px"; w.style.top = Math.max(0, Math.min(window.innerHeight - 30, ev.clientY - dy)) + "px"; };
+      const up = () => {
+        document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up);
+        settings.wins = { ...(settings.wins || {}), [w.id]: { x: parseInt(w.style.left), y: parseInt(w.style.top) } };
+        saveSettings();
+      };
+      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+      e.preventDefault();
+    });
+  });
+}
+
+window.addEventListener("pywebviewready", async () => {
+  // 別ファイルに保存しているもの（ポーズライブラリ・設定）を読み込む
+  const s = await call("load_app_json", "settings");
+  if (s && typeof s === "object") settings = { ...settings, ...s };
+  $("txt-ble-target").value = settings.target;
+  $("tl-zoom").value = settings.zoom;
+  $("sel-snap").value = String(settings.snap);
+  $("num-capture-ms").value = Math.round(settings.captureMs);
+  initWindows();
+  const lib = await call("load_app_json", "pose_library");
+  if (lib && Array.isArray(lib.poses)) poseLib = lib.poses;
+  else savePoseLib();                         // 初回: 既定プリセットでファイルを作る
+  renderPoseLib(); renderAll();
+
+  setInterval(async () => {
+    try {
+      const evs = await window.pywebview.api.poll_events();
+      if (!evs) return;
+      for (const e of evs) {
+        switch (e.type) {
+          case "log": logMsg(e.payload); break;
+          case "connection_status": onConnection(e.payload); break;
+          case "hello": onHello(e.payload); break;
+          case "state": onState(e.payload); break;
+          case "fb": onFb(e.payload); break;
+          case "link": onLink(e.payload); break;
+          case "calib": onCalib(e.payload); break;
+          case "pose_echo": onPoseEcho(e.payload); break;
+          case "motion_event": onEvent(e.payload); break;
+          case "upload_state":
+            if (e.payload.busy) setMcuBusy(true);
+            else {
+              setMcuBusy(false);
+              $("txt-run-status").textContent = !e.payload.ok ? "書き込みに失敗しました（ログを確認してください）" : e.payload.skipped ? "前回と同じ内容のため書き込みを省略して再生しました" : "書き込み完了。マイコンで再生を開始しました";
+            }
+            break;
+          case "upload_progress": setMcuProgress(e.payload.pct); break;
+          case "realtime_state": onRealtimeState(e.payload); break;
+        }
+      }
+    } catch (err) {}
+  }, 40);
+  setInterval(txPump, TX_PERIOD_MS);
+  setInterval(async () => {
+    const st = await call("get_connection_state");
+    if (st && st.state !== conn) onConnection({ state: st.state, name: st.name });
+    if (conn === "connected" && lastStateAt && performance.now() - lastStateAt > 2500) setSysStatus("接続中だがマイコンから応答がありません", "#B45309");
+  }, 1000);
+});
+</script>
+</body>
+</html>

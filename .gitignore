@@ -1,0 +1,23 @@
+.pio
+.vscode/.browse.c_cpp.db*
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch
+
+# ---- PCアプリ: 仮想環境・ビルドの作業フォルダ ----
+PC_App/.venv/
+PC_App/build/
+__pycache__/
+*.pyc
+
+# ---- 実行時に自動生成される個人の設定・ログ・一時データ ----
+instance.json
+settings.json
+pose_library.json
+browser_profile/
+*.log
+
+# ---- バックアップ・一時ファイル ----
+*.bak
+*.tmp
+page_scripts.js
